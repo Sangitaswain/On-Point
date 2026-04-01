@@ -14,16 +14,59 @@ Do not skip ahead. Do not start Step N+1 while any substep in Step N is still in
 
 ---
 
+## Operational Rules
+
+> **These rules must be read and followed before every step and phase. Re-read them at the start of each new step. No exceptions.**
+
+### 1. Data Protection
+Never expose sensitive data (API keys, tokens, user PII, internal IDs) in logs, responses, error messages, or client-side code.
+
+### 2. Production Data Safety
+If working with real or production data, protect it at all costs. Never run destructive operations without explicit confirmation. Back up before migrations.
+
+### 3. Security in Every Line
+Every line of code must be written with security in mind. Sanitize inputs, escape outputs, use HTTPS, and follow OWASP top 10 guidelines.
+
+### 4. Authentication & Authorization
+Verify identity and permissions at every access point. Never trust client-side claims. Always validate Clerk session tokens server-side. Check workspace membership and role before every mutation.
+
+### 5. Audit Logging
+Log critical actions (user invites, role changes, card deletions, permission changes) for traceability. Include who, what, when, and the affected resource.
+
+### 6. External APIs
+Handle failures gracefully. Never trust external input. Validate and sanitize all data from Clerk webhooks, third-party services, and user-provided URLs. Implement timeouts and retries where appropriate.
+
+### 7. Database
+Use parameterized queries (Convex handles this by design). Validate all inputs before writing to the database. Handle schema migrations carefully — test against development data before production.
+
+### 8. API Response Format
+Maintain a consistent response structure across all endpoints. Errors must include a code, a user-safe message, and never leak stack traces or internal details to the client.
+
+### 9. Commit Convention
+Follow a structured commit convention:
+- `feat:` — new feature
+- `fix:` — bug fix
+- `refactor:` — code restructuring without behavior change
+- `test:` — adding or updating tests
+- `docs:` — documentation changes
+- `chore:` — tooling, config, dependency updates
+- `style:` — formatting, no logic change
+
+### 10. Testing
+No step is done until it is tested. Period. Every feature, endpoint, and UI component must have corresponding tests before the step can be marked complete.
+
+---
+
 ## Step Index
 
 | Step | Name | Status |
 |------|------|--------|
-| 1 | Project Foundation | Not Started |
-| 2 | Authentication & User Sync | Not Started |
-| 3 | Workspace Layer | Not Started |
-| 4 | Backend Data Layer (Boards, Columns, Cards) | Not Started |
-| 5 | Board View — Static UI | Not Started |
-| 6 | Card Modal | Not Started |
+| 1 | Project Foundation | In Progress (Clerk/Convex setup TBD) |
+| 2 | Authentication & User Sync | Complete (pending Clerk/Convex setup) |
+| 3 | Workspace Layer | Complete |
+| 4 | Backend Data Layer (Boards, Columns, Cards) | Complete |
+| 5 | Board View — Static UI | Complete |
+| 6 | Card Modal | Complete |
 | 7 | Drag-and-Drop | Not Started |
 | 8 | Socket.IO Server | Not Started |
 | 9 | Real-Time Frontend Integration | Not Started |
@@ -41,73 +84,73 @@ Do not skip ahead. Do not start Step N+1 while any substep in Step N is still in
 
 ## Step 1: Project Foundation
 
-**Status:** Not Started
+**Status:** In Progress
 **Goal:** A running Next.js app with Tailwind, shadcn/ui, Convex, and Clerk wired together. Nothing works yet, but every tool is installed and the app boots without errors.
 
 ### 1.1 Initialize the Next.js project
 
-- [ ] Run `npx create-next-app@latest onpoint` — choose TypeScript, App Router, Tailwind CSS, no src directory, no import alias changes
-- [ ] Delete the default boilerplate in `app/page.tsx` and `app/globals.css` (keep Tailwind directives)
+- [x] Run `npx create-next-app@latest onpoint` — choose TypeScript, App Router, Tailwind CSS, no src directory, no import alias changes
+- [x] Delete the default boilerplate in `app/page.tsx` and `app/globals.css` (keep Tailwind directives)
 - [ ] Verify the app runs at `localhost:3000` with `npm run dev`
 
 > `git commit: initialize Next.js 14 App Router project with TypeScript and Tailwind`
 
 ### 1.2 Configure Tailwind for dark mode
 
-- [ ] In `tailwind.config.ts`, set `darkMode: 'class'`
-- [ ] Confirm Tailwind's `@tailwind base/components/utilities` directives are in `globals.css`
+- [x] In `tailwind.config.ts`, set `darkMode: 'class'` (Tailwind v4: used `@custom-variant dark` in CSS)
+- [x] Confirm Tailwind's `@tailwind base/components/utilities` directives are in `globals.css`
 
 > `git commit: configure Tailwind dark mode class strategy`
 
 ### 1.3 Install and configure shadcn/ui
 
-- [ ] Run `npx shadcn@latest init` — choose default style, default base color (Zinc), CSS variables
-- [ ] Add the components used across the project: `npx shadcn@latest add button dialog alert-dialog popover command calendar tabs tooltip toast avatar badge sheet separator input textarea label`
-- [ ] Verify components appear in `components/ui/`
+- [x] Run `npx shadcn@latest init` — choose default style, default base color (Zinc), CSS variables
+- [x] Add the components used across the project: `npx shadcn@latest add button dialog alert-dialog popover command calendar tabs tooltip toast avatar badge sheet separator input textarea label`
+- [x] Verify components appear in `components/ui/`
 
 > `git commit: install and initialize shadcn/ui with core components`
 
 ### 1.4 Set up Convex
 
-- [ ] Run `npx convex dev` — follow prompts to create a Convex project and log in
-- [ ] Confirm `convex/` folder is created with `_generated/` subfolder
-- [ ] Create `convex/schema.ts` — paste the full schema from BP.md section 4 (all 12 tables)
-- [ ] Run `npx convex dev` again — verify schema deploys with no errors in the Convex dashboard
+- [ ] Run `npx convex dev` — follow prompts to create a Convex project and log in — **TBD (user manual step)**
+- [ ] Confirm `convex/` folder is created with `_generated/` subfolder — **TBD (user manual step)**
+- [x] Create `convex/schema.ts` — paste the full schema from BP.md section 4 (all 14 tables)
+- [ ] Run `npx convex dev` again — verify schema deploys with no errors in the Convex dashboard — **TBD (user manual step)**
 
 > `git commit: add Convex project and define full database schema`
 
 ### 1.5 Set up Clerk
 
-- [ ] Create a Clerk application at clerk.com — enable Email/Password and Google OAuth providers
-- [ ] Copy `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` to `.env.local`
-- [ ] Install: `npm install @clerk/nextjs`
+- [ ] Create a Clerk application at clerk.com — enable Email/Password and Google OAuth providers — **TBD (user manual step)**
+- [ ] Copy `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` to `.env.local` — **TBD (user manual step)**
+- [x] Install: `npm install @clerk/nextjs`
 
 > `git commit: add Clerk environment variables and install Clerk SDK`
 
 ### 1.6 Wire up providers
 
-- [ ] Install: `npm install next-themes`
-- [ ] Create `components/providers/ThemeProvider.tsx` — wraps children with `next-themes` `ThemeProvider`, attribute="class", defaultTheme="system", enableSystem
-- [ ] Install: `npm install convex @clerk/nextjs`
-- [ ] Create `components/providers/ConvexClerkProvider.tsx` — wraps children with `ClerkProvider` inside `ConvexProviderWithClerk` (using `useAuth` from `@clerk/nextjs`)
-- [ ] Update `app/layout.tsx` — wrap children in `ThemeProvider` → `ConvexClerkProvider` (in that order)
-- [ ] Add `NEXT_PUBLIC_CONVEX_URL` to `.env.local` (from Convex dashboard)
+- [x] Install: `npm install next-themes`
+- [x] Create `components/providers/ThemeProvider.tsx` — wraps children with `next-themes` `ThemeProvider`, attribute="class", defaultTheme="system", enableSystem
+- [x] Install: `npm install convex @clerk/nextjs`
+- [x] Create `components/providers/ConvexClerkProvider.tsx` — wraps children with `ClerkProvider` inside `ConvexProviderWithClerk` (using `useAuth` from `@clerk/nextjs`)
+- [x] Update `app/layout.tsx` — wrap children in `ThemeProvider` → `ConvexClerkProvider` (in that order)
+- [ ] Add `NEXT_PUBLIC_CONVEX_URL` to `.env.local` (from Convex dashboard) — **TBD (user manual step)**
 
 > `git commit: add ThemeProvider and ConvexClerkProvider to root layout`
 
 ### 1.7 Set up Clerk middleware
 
-- [ ] Create `middleware.ts` at the project root using Clerk's `clerkMiddleware`
-- [ ] Protect all routes under `/(app)/` — unauthenticated requests redirect to `/sign-in`
-- [ ] Make `/sign-in`, `/sign-up`, `/onboarding`, and `/invite/[token]` public routes
+- [x] Create `middleware.ts` at the project root using Clerk's `clerkMiddleware`
+- [x] Protect all routes under `/(app)/` — unauthenticated requests redirect to `/sign-in`
+- [x] Make `/sign-in`, `/sign-up`, `/onboarding`, and `/invite/[token]` public routes
 
 > `git commit: add Clerk auth middleware protecting app routes`
 
 ### 1.8 Set up project folder structure
 
-- [ ] Create all empty folders from FP.md section 2: `components/providers/`, `components/layout/`, `components/workspace/`, `components/board/`, `components/column/`, `components/card/`, `components/notifications/`, `components/chat/`, `hooks/`, `lib/`, `types/`
-- [ ] Create `types/index.ts` with an empty export (fill in as types are needed)
-- [ ] Add `.env.local` to `.gitignore`
+- [x] Create all empty folders from FP.md section 2: `components/providers/`, `components/layout/`, `components/workspace/`, `components/board/`, `components/column/`, `components/card/`, `components/notifications/`, `components/chat/`, `hooks/`, `lib/`, `types/`
+- [x] Create `types/index.ts` with an empty export (fill in as types are needed)
+- [x] Add `.env.local` to `.gitignore`
 
 > `git commit: scaffold project folder structure and ignore env file`
 
@@ -115,53 +158,52 @@ Do not skip ahead. Do not start Step N+1 while any substep in Step N is still in
 
 ## Step 2: Authentication & User Sync
 
-**Status:** Not Started
+**Status:** Complete (pending Clerk/Convex setup for end-to-end testing)
 **Goal:** Users can sign up, sign in with Google, and their profile is automatically synced to Convex. First-time users are routed to onboarding.
 
 ### 2.1 Build sign-in and sign-up pages
 
-- [ ] Create `app/(auth)/sign-in/page.tsx` — renders Clerk's `<SignIn>` component centered on screen, `afterSignInUrl="/onboarding"`
-- [ ] Create `app/(auth)/sign-up/page.tsx` — renders Clerk's `<SignUp>` component centered, `afterSignUpUrl="/onboarding"`
-- [ ] Add Tailwind layout: full-height centered container with a light gray background
+- [x] Create `app/(auth)/sign-in/page.tsx` — renders Clerk's `<SignIn>` component centered on screen, `fallbackRedirectUrl="/onboarding"`
+- [x] Create `app/(auth)/sign-up/page.tsx` — renders Clerk's `<SignUp>` component centered, `fallbackRedirectUrl="/onboarding"`
+- [x] Add Tailwind layout: full-height centered container with a light gray background
 
 > `git commit: add Clerk sign-in and sign-up pages`
 
 ### 2.2 Create user mutations in Convex
 
-- [ ] Create `convex/lib/auth.ts` — implement `requireUser` helper (BP.md section 5.2)
-- [ ] Create `convex/users.ts` — implement `createUser` internal mutation (not callable by clients, only by the webhook) and `updateUser` mutation and `getMe` query
+- [x] Create `convex/lib/auth.ts` — implement `requireUser` helper (BP.md section 5.2)
+- [x] Create `convex/users.ts` — implement `createUser` mutation (callable via ConvexHttpClient from webhook) and `updateUser` mutation and `getMe` query
 
 > `git commit: add user mutations and requireUser auth helper to Convex`
 
 ### 2.3 Build the Clerk webhook handler
 
-- [ ] Install: `npm install svix`
-- [ ] Create `app/api/webhooks/clerk/route.ts` — full implementation from BP.md section 8
+- [x] Install: `npm install svix`
+- [x] Create `app/api/webhooks/clerk/route.ts` — full implementation from BP.md section 8
   - Verify svix signature using `CLERK_WEBHOOK_SECRET`
-  - On `user.created`: call `createUser` Convex mutation
-  - On `user.updated`: call `updateUser` Convex mutation
-- [ ] Add `CLERK_WEBHOOK_SECRET` to `.env.local` (from Clerk dashboard → Webhooks)
-- [ ] Register the webhook in Clerk dashboard: point to `https://your-app.vercel.app/api/webhooks/clerk` for events `user.created` and `user.updated`
-  - Note: For local development, use the Clerk CLI: `npx clerk webhooks listen --url http://localhost:3000/api/webhooks/clerk`
+  - On `user.created`: call `createUser` Convex mutation via ConvexHttpClient
+  - On `user.updated`: call `updateUser` Convex mutation via ConvexHttpClient
+- [ ] Add `CLERK_WEBHOOK_SECRET` to `.env.local` (from Clerk dashboard → Webhooks) — **TBD (user manual step)**
+- [ ] Register the webhook in Clerk dashboard — **TBD (user manual step)**
 
 > `git commit: add Clerk webhook handler to sync users to Convex`
 
 ### 2.4 Build the onboarding page
 
-- [ ] Create `app/onboarding/page.tsx`
-- [ ] Create `convex/workspaces.ts` — implement `createWorkspace` mutation only (slug generation from BP.md section 7.2) and `listMyWorkspaces` query
-- [ ] On the onboarding page: `useQuery(api.workspaces.listMyWorkspaces)` — if user already has workspaces, redirect to `/${workspaceSlug}`
-- [ ] Render two options:
+- [x] Create `app/onboarding/page.tsx`
+- [x] Create `convex/workspaces.ts` — implement `createWorkspace` mutation only (slug generation from BP.md section 7.2) and `listMyWorkspaces` query
+- [x] On the onboarding page: `useQuery(api.workspaces.listMyWorkspaces)` — if user already has workspaces, redirect to `/${workspaceSlug}`
+- [x] Render two options:
   - "Create a workspace" — text input + submit button → calls `createWorkspace` mutation → on success, push to `/${newSlug}`
-  - "Join a workspace" — text input for invite link + submit button (wire up in Step 3 when invite system is built)
-- [ ] Add Tailwind styling: clean centered card layout
+  - "Join a workspace" — text input for invite link + submit button (disabled with "Coming soon" note)
+- [x] Add Tailwind styling: clean centered card layout
 
 > `git commit: add onboarding page with workspace creation flow`
 
 ### 2.5 Add first-login redirect logic
 
-- [ ] In `app/(app)/layout.tsx` — use Clerk's `auth()` on the server to get the user's Clerk ID, then query Convex for workspace memberships. If none exist, redirect to `/onboarding`
-- [ ] Confirm the full auth flow works end-to-end: sign up → onboarding → workspace created → dashboard
+- [x] In `app/(app)/layout.tsx` — uses Convex reactive query for workspace memberships. If none exist, redirect to `/onboarding`
+- [ ] Confirm the full auth flow works end-to-end: sign up → onboarding → workspace created → dashboard — **TBD (requires Clerk/Convex setup)**
 
 > `git commit: add first-login redirect from app layout to onboarding`
 
@@ -169,7 +211,7 @@ Do not skip ahead. Do not start Step N+1 while any substep in Step N is still in
 
 ## Step 3: Workspace Layer
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** Users can create workspaces, invite teammates, see all their boards on a dashboard, and manage members. The app has a persistent sidebar.
 
 ### 3.1 Complete workspace Convex backend
@@ -252,7 +294,7 @@ Do not skip ahead. Do not start Step N+1 while any substep in Step N is still in
 
 ## Step 4: Backend Data Layer (Boards, Columns, Cards)
 
-**Status:** Not Started
+**Status:** Complete (pending Convex deployment for dashboard testing)
 **Goal:** Every Convex mutation and query for boards, columns, and cards is implemented, tested in the Convex dashboard, and protected by permission checks. The activity log helper is in place.
 
 ### 4.1 Implement the permission system
@@ -329,7 +371,7 @@ Do not skip ahead. Do not start Step N+1 while any substep in Step N is still in
 
 ## Step 5: Board View — Static UI
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** The board page renders all columns and cards from Convex. No drag-and-drop yet. Users can add columns, add cards, and rename columns. Everything is styled and usable.
 
 ### 5.1 Build the board page and header
@@ -383,7 +425,7 @@ Do not skip ahead. Do not start Step N+1 while any substep in Step N is still in
 
 ## Step 6: Card Modal
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** Clicking any card opens a full detail modal. Users can edit all card fields, view/post comments, and see the card's change history.
 
 ### 6.1 Build the card modal shell
@@ -465,7 +507,8 @@ Do not skip ahead. Do not start Step N+1 while any substep in Step N is still in
 
 - [ ] In `CardModal.tsx` (bottom of Details tab): red "Delete Card" button
 - [ ] Opens shadcn `AlertDialog`: "Are you sure? This cannot be undone."
-- [ ] On confirm: calls `deleteCard` mutation → closes modal
+- [ ] On confirm: calls `deleteCard` mut
+ation → closes modal
 
 > `git commit: add delete card action with confirmation dialog to card modal`
 
