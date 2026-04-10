@@ -8,6 +8,7 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -47,18 +48,20 @@ export function UserMenu() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent side="top" align="start" sideOffset={8}>
-        <DropdownMenuLabel>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-foreground">
-              {displayName}
-            </span>
-            {email && (
-              <span className="text-xs font-normal text-muted-foreground">
-                {email}
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-medium text-foreground">
+                {displayName}
               </span>
-            )}
-          </div>
-        </DropdownMenuLabel>
+              {email && (
+                <span className="text-xs font-normal text-muted-foreground">
+                  {email}
+                </span>
+              )}
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => clerk.signOut()}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useQuery } from 'convex/react'
+import { useQuery, useConvexAuth } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { useRouter } from 'next/navigation'
 
@@ -10,7 +10,14 @@ import { AppSidebar } from '@/components/layout/AppSidebar'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const workspaces = useQuery(api.workspaces.listMyWorkspaces)
+  const { isAuthenticated, isLoading: authLoading } = useConvexAuth()
+
+  // Skip the query entirely until Convex has verified the Clerk token.
+  // Without this, the query fires before the JWT is attached → UNAUTHENTICATED.
+  const workspaces = useQuery(
+    api.workspaces.listMyWorkspaces,
+    isAuthenticated ? {} : 'skip'
+  )
 
   useEffect(() => {
     if (workspaces && workspaces.length === 0) {
@@ -18,10 +25,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [workspaces, router])
 
-  // Query is still loading (undefined means Convex hasn't returned yet,
-  // which also covers the case where the user record doesn't exist yet
-  // and requireUser throws USER_NOT_FOUND)
-  if (workspaces === undefined) {
+  // Show spinner while Convex auth is establishing OR query is in-flight
+  if (authLoading || workspaces === undefined) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -32,7 +37,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // No workspaces -- redirecting to onboarding (useEffect above)
+  // No workspaces — redirecting to onboarding (useEffect above handles it)
   if (workspaces.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center">
