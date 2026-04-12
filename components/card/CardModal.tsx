@@ -36,6 +36,7 @@ import { CommentThread } from './CommentThread'
 import { AssigneePicker } from './AssigneePicker'
 import { LabelPicker } from './LabelPicker'
 import { DueDatePicker } from './DueDatePicker'
+import { useSocket } from '@/components/providers/SocketProvider'
 
 interface CardModalProps {
   cardId: string | null
@@ -62,17 +63,19 @@ export function CardModal({ cardId, onClose }: CardModalProps) {
   const canDelete = myPermission === 'edit'
 
   const deleteCard = useMutation(api.cards.deleteCard)
+  const socket = useSocket()
 
   const handleDelete = useCallback(async () => {
-    if (!cardId) return
+    if (!cardId || !card) return
     setIsDeleting(true)
     try {
       await deleteCard({ cardId: cardId as Id<'cards'> })
+      socket?.emit('CARD_DELETED', { boardId: card.boardId, cardId })
       onClose()
     } finally {
       setIsDeleting(false)
     }
-  }, [cardId, deleteCard, onClose])
+  }, [cardId, card, deleteCard, socket, onClose])
 
   if (!cardId) return null
 

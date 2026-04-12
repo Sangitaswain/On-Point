@@ -14,12 +14,14 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog'
+import { useSocket } from '@/components/providers/SocketProvider'
 
 interface DeleteColumnDialogProps {
   column: {
     _id: Id<'columns'>
     title: string
   }
+  boardId: Id<'boards'>
   cardCount: number
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -27,16 +29,19 @@ interface DeleteColumnDialogProps {
 
 export function DeleteColumnDialog({
   column,
+  boardId,
   cardCount,
   open,
   onOpenChange,
 }: DeleteColumnDialogProps) {
   const deleteColumn = useMutation(api.columns.deleteColumn)
+  const socket = useSocket()
 
   const handleConfirm = useCallback(async () => {
     await deleteColumn({ columnId: column._id })
+    socket?.emit('COLUMN_DELETED', { boardId, columnId: column._id })
     onOpenChange(false)
-  }, [deleteColumn, column._id, onOpenChange])
+  }, [deleteColumn, column._id, boardId, socket, onOpenChange])
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>

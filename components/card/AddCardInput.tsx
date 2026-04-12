@@ -7,22 +7,26 @@ import { Id } from '@/convex/_generated/dataModel'
 import { Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useSocket } from '@/components/providers/SocketProvider'
 
 interface AddCardInputProps {
   columnId: Id<'columns'>
+  boardId: Id<'boards'>
 }
 
-export function AddCardInput({ columnId }: AddCardInputProps) {
+export function AddCardInput({ columnId, boardId }: AddCardInputProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState('')
   const createCard = useMutation(api.cards.createCard)
+  const socket = useSocket()
 
   const handleSave = useCallback(async () => {
     const trimmed = title.trim()
     if (!trimmed) return
-    await createCard({ columnId, title: trimmed })
+    const card = await createCard({ columnId, title: trimmed })
+    socket?.emit('CARD_CREATED', { boardId, card })
     setTitle('')
-  }, [title, columnId, createCard])
+  }, [title, columnId, boardId, createCard, socket])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {

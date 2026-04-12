@@ -9,6 +9,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import { Bold, Italic, Code, List, Pencil, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useSocket } from '@/components/providers/SocketProvider'
 
 interface CardLabel {
   _id: string
@@ -50,6 +51,7 @@ export function CardDetailsTab({ card }: CardDetailsTabProps) {
   const titleInputRef = useRef<HTMLInputElement>(null)
 
   const updateCard = useMutation(api.cards.updateCard)
+  const socket = useSocket()
 
   // Sync external title changes
   useEffect(() => {
@@ -67,11 +69,12 @@ export function CardDetailsTab({ card }: CardDetailsTabProps) {
     }
     try {
       await updateCard({ cardId: card._id, title: trimmed })
+      socket?.emit('CARD_UPDATED', { boardId: card.boardId, cardId: card._id, changes: { title: trimmed } })
     } catch {
       setTitleValue(card.title)
     }
     setIsEditingTitle(false)
-  }, [titleValue, card.title, card._id, updateCard])
+  }, [titleValue, card.title, card._id, card.boardId, updateCard, socket])
 
   const handleTitleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -124,6 +127,7 @@ export function CardDetailsTab({ card }: CardDetailsTabProps) {
     try {
       const json = editEditor.getJSON()
       await updateCard({ cardId: card._id, description: json })
+      socket?.emit('CARD_UPDATED', { boardId: card.boardId, cardId: card._id, changes: { description: json } })
       // Sync view editor with saved content
       viewEditor?.commands.setContent(json)
       setIsEditingDesc(false)
@@ -132,7 +136,7 @@ export function CardDetailsTab({ card }: CardDetailsTabProps) {
     } finally {
       setIsSaving(false)
     }
-  }, [editEditor, viewEditor, card._id, updateCard])
+  }, [editEditor, viewEditor, card._id, card.boardId, updateCard, socket])
 
   const handleCancelDesc = useCallback(() => {
     // Restore edit editor to saved content

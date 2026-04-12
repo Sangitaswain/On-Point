@@ -22,10 +22,11 @@ interface ColumnProps {
     dueDate?: string
     orderIndex: number
   }>
+  boardId: Id<'boards'>
   onCardClick: (cardId: Id<'cards'>) => void
 }
 
-export function Column({ column, cards, onCardClick }: ColumnProps) {
+export function Column({ column, cards, boardId, onCardClick }: ColumnProps) {
   const {
     attributes,
     listeners,
@@ -52,7 +53,7 @@ export function Column({ column, cards, onCardClick }: ColumnProps) {
       style={style}
       className="flex w-72 shrink-0 flex-col gap-2 rounded-xl bg-muted/50 p-2 max-h-full"
     >
-      <ColumnHeader column={column} dragListeners={listeners} dragAttributes={attributes} />
+      <ColumnHeader column={column} boardId={boardId} dragListeners={listeners} dragAttributes={attributes} />
 
       <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
         <div className="flex flex-col gap-2 overflow-y-auto min-h-0 flex-1">
@@ -66,7 +67,7 @@ export function Column({ column, cards, onCardClick }: ColumnProps) {
         </div>
       </SortableContext>
 
-      <AddCardInput columnId={column._id} />
+      <AddCardInput columnId={column._id} boardId={boardId} />
     </div>
   )
 }

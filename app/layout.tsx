@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ConvexClerkProvider } from "@/components/providers/ConvexClerkProvider";
+import { SocketProvider } from "@/components/providers/SocketProvider";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -34,8 +35,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <ConvexClerkProvider>
-            {children}
-            <Toaster />
+            <SocketProvider>
+              {children}
+              <Toaster />
+            </SocketProvider>
           </ConvexClerkProvider>
         </ThemeProvider>
       </body>

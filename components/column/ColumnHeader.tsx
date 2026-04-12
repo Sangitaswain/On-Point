@@ -8,34 +8,39 @@ import { GripVertical, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DeleteColumnDialog } from '@/components/column/DeleteColumnDialog'
+import { useSocket } from '@/components/providers/SocketProvider'
 
 interface ColumnHeaderProps {
   column: {
     _id: Id<'columns'>
     title: string
   }
+  boardId: Id<'boards'>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dragListeners?: Record<string, any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dragAttributes?: Record<string, any>
 }
 
-export function ColumnHeader({ column, dragListeners, dragAttributes }: ColumnHeaderProps) {
+export function ColumnHeader({ column, boardId, dragListeners, dragAttributes }: ColumnHeaderProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(column.title)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const updateColumn = useMutation(api.columns.updateColumn)
+  const socket = useSocket()
 
   const handleSave = useCallback(() => {
     const trimmed = title.trim()
     if (trimmed && trimmed !== column.title) {
-      updateColumn({ columnId: column._id, title: trimmed })
+      updateColumn({ columnId: column._id, title: trimmed }).then(() => {
+        socket?.emit('COLUMN_UPDATED', { boardId, columnId: column._id, title: trimmed })
+      })
     } else {
       setTitle(column.title)
     }
     setIsEditing(false)
-  }, [title, column.title, column._id, updateColumn])
+  }, [title, column.title, column._id, boardId, updateColumn, socket])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -95,6 +100,7 @@ export function ColumnHeader({ column, dragListeners, dragAttributes }: ColumnHe
       </Button>
       <DeleteColumnDialog
         column={column}
+        boardId={boardId}
         cardCount={0}
         open={deleteOpen}
         onOpenChange={setDeleteOpen}

@@ -7,6 +7,7 @@ import { Id } from '@/convex/_generated/dataModel'
 import { Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useSocket } from '@/components/providers/SocketProvider'
 
 interface AddColumnButtonProps {
   boardId: Id<'boards'>
@@ -16,14 +17,16 @@ export function AddColumnButton({ boardId }: AddColumnButtonProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState('')
   const createColumn = useMutation(api.columns.createColumn)
+  const socket = useSocket()
 
   const handleSave = useCallback(async () => {
     const trimmed = title.trim()
     if (!trimmed) return
-    await createColumn({ boardId, title: trimmed })
+    const column = await createColumn({ boardId, title: trimmed })
+    socket?.emit('COLUMN_CREATED', { boardId, column })
     setTitle('')
     setIsOpen(false)
-  }, [title, boardId, createColumn])
+  }, [title, boardId, createColumn, socket])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {

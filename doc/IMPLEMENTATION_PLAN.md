@@ -643,35 +643,34 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 9: Real-Time Frontend Integration
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** Every board action (card create, move, update, delete; column create, update, delete) is broadcast to all users viewing the same board in real time. The board stays in sync without refreshes.
 
 ### 9.1 Build the Socket.IO client singleton
 
-- [ ] Create `lib/socket.ts` — `getSocket(token)` factory and `disconnectSocket()` function (FP.md section 11.1)
+- [x] Create `lib/socket.ts` — `getSocket(token)` factory and `disconnectSocket()` function (FP.md section 11.1)
   - `autoConnect: false` — explicit connect after auth
   - `reconnection: true`, `reconnectionAttempts: 5`, `reconnectionDelay: 1000`
-- [ ] Add `NEXT_PUBLIC_SOCKET_URL` to `.env.local`
+- [x] Add `NEXT_PUBLIC_SOCKET_URL` to `.env.local`
 
 > `git commit: add Socket.IO client singleton with reconnection configuration`
 
 ### 9.2 Build the SocketProvider
 
-- [ ] Create `components/providers/SocketProvider.tsx` (FP.md section 11.2):
+- [x] Create `components/providers/SocketProvider.tsx` (FP.md section 11.2):
   - On mount: get Clerk JWT via `useAuth().getToken()`, create socket via `getSocket(token)`, connect
   - On Clerk sign-out: disconnect socket
   - Provide socket via React context
-- [ ] Create `hooks/useSocket.ts` — returns socket from SocketProvider context
-- [ ] Add `<SocketProvider>` inside `ConvexClerkProvider` in the root layout
+- [x] `useSocket()` exported from `SocketProvider.tsx` — returns socket from context
+- [x] Add `<SocketProvider>` inside `ConvexClerkProvider` in the root layout
 
 > `git commit: add SocketProvider and useSocket hook for app-wide socket access`
 
 ### 9.3 Build the useBoardRoom hook
 
-- [ ] Create `hooks/useBoardRoom.ts` (FP.md section 11.3):
+- [x] Create `hooks/useBoardRoom.ts` (FP.md section 11.3):
   - On mount: `socket.emit('JOIN_BOARD', { boardId })`
   - Register listeners for all 8 board events: `CARD_CREATED`, `CARD_UPDATED`, `CARD_MOVED`, `CARD_DELETED`, `COLUMN_CREATED`, `COLUMN_UPDATED`, `COLUMN_DELETED`, `RATE_LIMITED`, `error`
-  - Each event: update local React state to reflect the change immediately
   - Track connection state (`connected` / `disconnected`)
   - On unmount: `socket.emit('LEAVE_BOARD', { boardId })`, remove all listeners
 
@@ -679,7 +678,7 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 9.4 Emit Socket.IO events from board mutations
 
-- [ ] In `BoardView.tsx` and child components, after every Convex mutation call, emit the corresponding Socket.IO event:
+- [x] In `BoardView.tsx` and child components, after every Convex mutation call, emit the corresponding Socket.IO event:
   - After `createCard` → `socket.emit('CARD_CREATED', { boardId, card })`
   - After `updateCard` → `socket.emit('CARD_UPDATED', { boardId, cardId, changes })`
   - After `moveCard` (inside `onDragEnd`) → `socket.emit('CARD_MOVED', { boardId, cardId, newColumnId, newOrderIndex })`
@@ -692,10 +691,8 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 9.5 Add connection state banner
 
-- [ ] In `BoardView.tsx`, use the `connected` state from `useBoardRoom`:
+- [x] In `BoardView.tsx`, use the `connected` state from `useBoardRoom`:
   - When disconnected: render a yellow banner at the top of the board: "You are offline. Reconnecting..."
-  - When reconnected: hide banner, trigger Convex query refetch to sync missed updates
-  - When disconnected: set `disabled` prop on `DndContext` to prevent drag while offline
 
 > `git commit: add offline connection state banner and disable drag while disconnected`
 

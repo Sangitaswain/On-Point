@@ -255,8 +255,8 @@ On-Point/
 | 6 | Card Modal | Complete |
 | 7 | Drag-and-Drop | Complete |
 | 8 | Socket.IO Server + Upstash Redis | Complete |
-| 9 | Real-Time Frontend Integration | Up next |
-| 10 | Presence | Planned |
+| 9 | Real-Time Frontend Integration | Complete |
+| 10 | Presence | Up next |
 | 11 | Comments & @Mentions | Planned |
 | 12 | Notifications | Planned |
 

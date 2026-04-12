@@ -4,6 +4,8 @@ import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
+import { useSocket } from '@/components/providers/SocketProvider'
+import { useBoardRoom } from '@/hooks/useBoardRoom'
 import {
   DndContext,
   DragOverlay,
@@ -39,6 +41,9 @@ export function BoardView({ boardId }: BoardViewProps) {
 
   const moveCard = useMutation(api.cards.moveCard)
   const reorderColumn = useMutation(api.columns.reorderColumn)
+
+  const socket = useSocket()
+  const { connected } = useBoardRoom({ boardId })
 
   // Card modal state
   const [openCardId, setOpenCardId] = useState<Id<'cards'> | null>(null)
@@ -165,6 +170,13 @@ export function BoardView({ boardId }: BoardViewProps) {
             cardId: activeId as Id<'cards'>,
             newColumnId: activeCard.columnId,
             newOrderIndex: activeCard.orderIndex,
+          }).then(() => {
+            socket?.emit('CARD_MOVED', {
+              boardId,
+              cardId: activeId,
+              newColumnId: activeCard.columnId as string,
+              newOrderIndex: activeCard.orderIndex,
+            })
           }).catch(() => {
             if (cards) setLocalCards([...cards])
           })
@@ -197,6 +209,13 @@ export function BoardView({ boardId }: BoardViewProps) {
           cardId: activeId as Id<'cards'>,
           newColumnId: activeCard.columnId,
           newOrderIndex,
+        }).then(() => {
+          socket?.emit('CARD_MOVED', {
+            boardId,
+            cardId: activeId,
+            newColumnId: activeCard.columnId as string,
+            newOrderIndex,
+          })
         }).catch(() => {
           if (cards) setLocalCards([...cards])
         })
@@ -224,12 +243,18 @@ export function BoardView({ boardId }: BoardViewProps) {
         reorderColumn({
           columnId: activeId as Id<'columns'>,
           newOrderIndex,
+        }).then(() => {
+          socket?.emit('COLUMN_UPDATED', {
+            boardId,
+            columnId: activeId,
+            newOrderIndex,
+          })
         }).catch(() => {
           if (columns) setLocalColumns([...columns])
         })
       }
     },
-    [localCards, localColumns, cards, columns, moveCard, reorderColumn]
+    [localCards, localColumns, cards, columns, moveCard, reorderColumn, socket, boardId]
   )
 
   const onDragCancel = useCallback(() => {
@@ -257,6 +282,11 @@ export function BoardView({ boardId }: BoardViewProps) {
 
   return (
     <>
+      {!connected && socket !== null && (
+        <div className="flex items-center justify-center bg-yellow-500/10 px-4 py-2 text-sm text-yellow-700 dark:text-yellow-400">
+          You are offline. Reconnecting...
+        </div>
+      )}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -271,6 +301,7 @@ export function BoardView({ boardId }: BoardViewProps) {
               <Column
                 key={column._id}
                 column={column}
+                boardId={boardId}
                 cards={cardsByColumn[column._id as string] ?? []}
                 onCardClick={(cardId) => setOpenCardId(cardId)}
               />
