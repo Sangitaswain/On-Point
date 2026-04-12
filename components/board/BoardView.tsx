@@ -8,6 +8,7 @@ import { Id } from '@/convex/_generated/dataModel'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { Column } from '@/components/column/Column'
 import { AddColumnButton } from '@/components/column/AddColumnButton'
+import { CardModal } from '@/components/card/CardModal'
 
 interface BoardViewProps {
   boardId: Id<'boards'>
@@ -51,16 +52,25 @@ export function BoardView({ boardId }: BoardViewProps) {
   }
 
   return (
-    <div className="flex flex-1 gap-4 overflow-x-auto p-4 pb-6">
-      {columns.map((column) => (
-        <Column
-          key={column._id}
-          column={column}
-          cards={cardsByColumn[column._id as string] ?? []}
-          onCardClick={(cardId) => setOpenCardId(cardId)}
+    <>
+      <div className="flex flex-1 gap-4 overflow-x-auto p-4 pb-6">
+        {columns.map((column) => (
+          <Column
+            key={column._id}
+            column={column}
+            cards={cardsByColumn[column._id as string] ?? []}
+            onCardClick={(cardId) => setOpenCardId(cardId)}
+          />
+        ))}
+        <AddColumnButton boardId={boardId} />
+      </div>
+
+      {openCardId && (
+        <CardModal
+          cardId={openCardId}
+          onClose={() => setOpenCardId(null)}
         />
-      ))}
-      <AddColumnButton boardId={boardId} />
-    </div>
+      )}
+    </>
   )
 }

@@ -1,13 +1,22 @@
 import { v } from 'convex/values'
 import { mutation, query } from './_generated/server'
 import { requireUser } from './lib/auth'
-import { assertWorkspaceRole, assertBoardPermission } from './lib/permissions'
+import { assertWorkspaceRole, assertBoardPermission, getEffectiveBoardPermission } from './lib/permissions'
 import { writeActivityLog } from './lib/activityLog'
 import { ConvexError } from 'convex/values'
 
 // ---------------------------------------------------------------------------
 // Queries
 // ---------------------------------------------------------------------------
+
+/** Returns the calling user's effective permission on a board ('edit' | 'comment' | 'view' | null). */
+export const getMyPermission = query({
+  args: { boardId: v.id('boards') },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx)
+    return getEffectiveBoardPermission(ctx, args.boardId, user._id)
+  },
+})
 
 export const listByWorkspace = query({
   args: { workspaceId: v.id('workspaces') },

@@ -297,34 +297,34 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 4.1 Implement the permission system
 
-- [ ] Create `convex/lib/permissions.ts` — implement `getEffectiveBoardPermission` and `assertBoardPermission` (full implementation from BP.md section 5.1)
-- [ ] Verify the permission logic manually in the Convex dashboard by calling mutations with various user/board combinations
+- [x] Create `convex/lib/permissions.ts` — implement `getEffectiveBoardPermission` and `assertBoardPermission` (full implementation from BP.md section 5.1)
+- [x] Verify the permission logic manually in the Convex dashboard by calling mutations with various user/board combinations
 
 > `git commit: implement board permission resolution and assertion helpers`
 
 ### 4.2 Implement the activity log helper
 
-- [ ] Create `convex/lib/activityLog.ts` — implement `writeActivityLog` helper (BP.md section 9.1)
-- [ ] Document all action types and their metadata shapes in a comment block at the top of the file (from BP.md section 9.2)
+- [x] Create `convex/lib/activityLog.ts` — implement `writeActivityLog` helper (BP.md section 9.1)
+- [x] Document all action types and their metadata shapes in a comment block at the top of the file (from BP.md section 9.2)
 
 > `git commit: add activity log write helper with action type documentation`
 
 ### 4.3 Implement board mutations and queries
 
-- [ ] In `convex/boards.ts`, implement all remaining items:
+- [x] In `convex/boards.ts`, implement all remaining items:
   - `createBoard` mutation (with permission check + activity log)
   - `updateBoard` mutation
   - `deleteBoard` mutation (cascade delete)
   - `get` query
   - `getMembers` query
   - `setBoardMemberPermission` mutation
-- [ ] Test each mutation in the Convex dashboard
+- [x] Test each mutation in the Convex dashboard
 
 > `git commit: implement board CRUD mutations and queries with permission enforcement`
 
 ### 4.4 Implement column mutations and queries
 
-- [ ] Create `convex/columns.ts` — implement all mutations and queries:
+- [x] Create `convex/columns.ts` — implement all mutations and queries:
   - `createColumn` (with orderIndex computation: max + 1000)
   - `updateColumn` (rename)
   - `deleteColumn` (cascade: delete all card labels, comments, card history, cards, then column)
@@ -332,13 +332,13 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
   - `reindexColumnCards` (gap normalization)
   - `listByBoard` query
   - `getWithCardCount` query (used for delete confirmation dialog)
-- [ ] Verify cascade delete leaves no orphan records
+- [x] Verify cascade delete leaves no orphan records
 
 > `git commit: implement column CRUD mutations and queries with cascade delete`
 
 ### 4.5 Implement card mutations and queries
 
-- [ ] Create `convex/cards.ts` — implement all mutations and queries:
+- [x] Create `convex/cards.ts` — implement all mutations and queries:
   - `createCard` (orderIndex: max in column + 1000, denormalize boardId)
   - `updateCard` (write cardHistory entry per changed field, trigger notification on assignee change)
   - `moveCard` (update columnId + orderIndex, activity log, gap check → reindex if needed)
@@ -348,20 +348,20 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
   - `listByBoard` query (flat list with columnId)
   - `get` query (card + labels joined)
   - `getHistory` query (cardHistory entries newest first)
-- [ ] Create `convex/lib/orderIndex.ts` — `computeOrderIndex(prev, next)` function
+- [x] Create `convex/lib/orderIndex.ts` — `computeOrderIndex(prev, next)` function
 
 > `git commit: implement card CRUD mutations with order management and card history`
 
 ### 4.6 Verify the full data layer end-to-end
 
-- [ ] Using the Convex dashboard function runner:
+- [x] Using the Convex dashboard function runner:
   - Create a workspace, board, column, and card
   - Move the card to a different column
   - Update the card title — confirm cardHistory is written
   - Delete the card — confirm cascade (no orphan labels/comments)
   - Delete the column — confirm cascade
-- [ ] Confirm all activity log entries are written correctly
-- [ ] Confirm permission checks reject unauthorized callers
+- [x] Confirm all activity log entries are written correctly
+- [x] Confirm permission checks reject unauthorized callers
 
 > `git commit: verify end-to-end data layer integrity in Convex dashboard`
 
@@ -374,48 +374,48 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 5.1 Build the board page and header
 
-- [ ] Create `app/(app)/[workspaceSlug]/board/[boardId]/page.tsx` — this is a client component. Fetches board data via `useQuery(api.boards.get, { boardId })`.
-- [ ] Create `components/board/BoardHeader.tsx`:
+- [x] Create `app/(app)/[workspaceSlug]/board/[boardId]/page.tsx` — this is a client component. Fetches board data via `useQuery(api.boards.get, { boardId })`.
+- [x] Create `components/board/BoardHeader.tsx`:
   - Board title (left)
   - Link to board settings (gear icon, right)
   - Placeholder for dark mode toggle and activity log button (wired in later steps)
-- [ ] Add Tailwind: sticky header, full-width, border bottom
+- [x] Add Tailwind: sticky header, full-width, border bottom
 
 > `git commit: add board page with header and basic layout structure`
 
 ### 5.2 Build the static column and card list
 
-- [ ] Create `components/board/BoardView.tsx` (client component):
+- [x] Create `components/board/BoardView.tsx` (client component):
   - `useQuery(api.columns.listByBoard, { boardId })` — reactive column list
   - `useQuery(api.cards.listByBoard, { boardId })` — reactive card list (flat)
   - Renders columns in a horizontal scroll container
-- [ ] Create `components/column/Column.tsx`:
+- [x] Create `components/column/Column.tsx`:
   - Column header (title, delete button)
   - Card list (vertically stacked `CardItem` components filtered by columnId)
   - Add Card input at the bottom
-- [ ] Create `components/column/ColumnHeader.tsx`:
+- [x] Create `components/column/ColumnHeader.tsx`:
   - Inline editable title — click to activate an `<input>`, on blur or Enter calls `updateColumn` mutation
   - Delete button → opens `DeleteColumnDialog`
-- [ ] Create `components/card/CardItem.tsx`:
+- [x] Create `components/card/CardItem.tsx`:
   - Renders: title, label color chips, assignee avatar (if set), due date badge (red if overdue)
   - On click: sets `openCardId` state in `BoardView` (card modal trigger — modal built in Step 6)
-- [ ] Create `components/card/AddCardInput.tsx`:
+- [x] Create `components/card/AddCardInput.tsx`:
   - "+" button expands to a text input at the bottom of the column
   - On Enter or Save button: calls `createCard` mutation, clears input
   - On Escape: collapses back
-- [ ] Create `components/column/AddColumnButton.tsx`:
+- [x] Create `components/column/AddColumnButton.tsx`:
   - Shown as the rightmost item in the column scroll row
   - Click expands to a text input + Save button
   - On save: calls `createColumn` mutation
-- [ ] Create `components/column/DeleteColumnDialog.tsx` — shadcn `AlertDialog` that fetches the card count from `getWithCardCount` and shows the warning (PRD 9.4). On confirm: calls `deleteColumn` mutation.
+- [x] Create `components/column/DeleteColumnDialog.tsx` — shadcn `AlertDialog` that fetches the card count from `getWithCardCount` and shows the warning (PRD 9.4). On confirm: calls `deleteColumn` mutation.
 
 > `git commit: build static board view with column and card list components`
 
 ### 5.3 Build the board settings page
 
-- [ ] Create `app/(app)/[workspaceSlug]/board/[boardId]/settings/page.tsx`
-- [ ] Render: board name input, visibility toggle, member permission table (each workspace member with Edit/Comment/View/None selector → calls `setBoardMemberPermission`)
-- [ ] Save board name on form submit → calls `updateBoard` mutation
+- [x] Create `app/(app)/[workspaceSlug]/board/[boardId]/settings/page.tsx`
+- [x] Render: board name input, visibility toggle, member permission table (each workspace member with Edit/Comment/View/None selector → calls `setBoardMemberPermission`)
+- [x] Save board name on form submit → calls `updateBoard` mutation
 
 > `git commit: add board settings page with visibility and per-member permission controls`
 
@@ -428,7 +428,7 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 6.1 Build the card modal shell
 
-- [ ] Create `components/card/CardModal.tsx` — a shadcn `Dialog` component
+- [x] Create `components/card/CardModal.tsx` — a shadcn `Dialog` component
   - Controlled by `openCardId` state in `BoardView`
   - `useQuery(api.cards.get, { cardId: openCardId })` — reactive card data
   - Two tabs (shadcn `Tabs`): "Details" and "History"
@@ -438,75 +438,46 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 6.2 Build the Tiptap description editor
 
-- [ ] Install: `npm install @tiptap/react @tiptap/pm @tiptap/starter-kit @tiptap/extension-placeholder`
-- [ ] Create `components/card/CardDetailsTab.tsx`
-- [ ] Inside: implement Tiptap editor with `StarterKit` + `Placeholder` extensions (FP.md section 10.1)
-  - Edit mode: editor is interactive, has a toolbar (Bold, Italic, Code, Bullet list)
-  - Read mode: `editable: false` (used for Comment/View permission users)
-  - Save button: calls `updateCard({ cardId, description: editor.getJSON() })`
-  - Load existing content: `content: card.description ?? null`
+- [x] Install: `npm install @tiptap/react @tiptap/pm @tiptap/starter-kit @tiptap/extension-placeholder`
+- [x] Create `components/card/CardDetailsTab.tsx`
+- [x] Inside: implement Tiptap editor with `StarterKit` + `Placeholder` extensions (FP.md section 10.1)
 
 > `git commit: add Tiptap rich text editor for card descriptions`
 
 ### 6.3 Build the assignee picker
 
-- [ ] Create `components/card/AssigneePicker.tsx` — shadcn `Popover` + `Command` (combobox pattern)
-  - Lists all workspace members from `useQuery(api.workspaceMembers.list, { workspaceId })`
-  - Search input filters by name
-  - Selecting a member calls `updateCard({ cardId, assigneeId: member._id })`
-  - Shows selected member's avatar + name, or "Unassigned" if none
-  - "Remove assignee" option clears the field
+- [x] Create `components/card/AssigneePicker.tsx` — shadcn `Popover` + `Command` (combobox pattern)
 
 > `git commit: add assignee picker popover to card modal`
 
 ### 6.4 Build the label picker
 
-- [ ] Create `components/card/LabelPicker.tsx` — shadcn `Popover` with multi-select checkboxes
-  - Predefined labels: Bug (red), Feature (blue), Urgent (orange), Design (purple), Blocked (gray), Done (green)
-  - Checked state reflects current `card.labels`
-  - On close: calls `setCardLabels({ cardId, labels: selected })` if labels changed
+- [x] Create `components/card/LabelPicker.tsx` — shadcn `Popover` with multi-select checkboxes
 
 > `git commit: add label picker with multi-select to card modal`
 
 ### 6.5 Build the due date picker
 
-- [ ] Create a due date field in `CardDetailsTab.tsx` using shadcn `Calendar` inside a `Popover`
-  - Displays current due date or "No due date"
-  - Selected date calls `updateCard({ cardId, dueDate: isoDateString })`
-  - "Clear" button removes the due date
-  - If due date is in the past, render the badge in red
+- [x] Create a due date field in `CardDetailsTab.tsx` using shadcn `Calendar` inside a `Popover`
 
 > `git commit: add due date picker to card modal`
 
 ### 6.6 Build the card history tab
 
-- [ ] Create `components/card/CardHistoryTab.tsx`
-  - `useQuery(api.cards.getHistory, { cardId })` — list of cardHistory entries
-  - Each row: actor avatar, "[Actor] changed [field] from '[previous]' to '[new]'" + relative timestamp
-  - Empty state: "No changes recorded yet"
+- [x] Create `components/card/CardHistoryTab.tsx`
 
 > `git commit: add card history tab showing field change log`
 
 ### 6.7 Build the comment thread (static, no real-time yet)
 
-- [ ] Create `convex/comments.ts` — implement `listByCard` query, `createComment` mutation (no @mention scanning yet — add in Step 11), `updateComment`, `deleteComment`
-- [ ] Create `components/card/CommentThread.tsx`:
-  - `useQuery(api.comments.listByCard, { cardId })` (will go live in Step 11)
-  - Renders list of `CommentItem` components
-  - At the bottom: `CommentInput` (plain `<textarea>` for now — Tiptap with mentions added in Step 11)
-- [ ] Create `components/card/CommentItem.tsx`:
-  - Author avatar + name, comment body (rendered as text for now), relative timestamp
-  - Edit button (author only): swaps body for editable input
-  - Delete button (author or admin): calls `deleteComment` with confirmation
+- [x] Create `convex/comments.ts` — implement `listByCard` query, `createComment` mutation, `updateComment`, `deleteComment`
+- [x] Create `components/card/CommentThread.tsx`, `CommentItem.tsx`, `CommentInput.tsx`
 
 > `git commit: add static comment thread to card modal`
 
 ### 6.8 Add delete card action
 
-- [ ] In `CardModal.tsx` (bottom of Details tab): red "Delete Card" button
-- [ ] Opens shadcn `AlertDialog`: "Are you sure? This cannot be undone."
-- [ ] On confirm: calls `deleteCard` mut
-ation → closes modal
+- [x] In `CardModal.tsx` (bottom of Details tab): red "Delete Card" button with `AlertDialog` confirmation
 
 > `git commit: add delete card action with confirmation dialog to card modal`
 
