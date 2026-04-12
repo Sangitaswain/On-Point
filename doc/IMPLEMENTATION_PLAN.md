@@ -216,27 +216,27 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 3.1 Complete workspace Convex backend
 
-- [ ] In `convex/workspaces.ts`, add remaining mutations and queries:
+- [x] In `convex/workspaces.ts`, add remaining mutations and queries:
   - `updateWorkspaceName` mutation
   - `deleteWorkspace` mutation (with cascade — delete all boards, columns, cards, members, invites)
   - `getBySlug` query
   - `listMembers` query
-- [ ] Add `assertWorkspaceRole` helper to `convex/lib/permissions.ts` (BP.md section 5.3)
+- [x] Add `assertWorkspaceRole` helper to `convex/lib/permissions.ts` (BP.md section 5.3)
 
 > `git commit: complete workspace mutations, queries, and role permission helper`
 
 ### 3.2 Build the invite system
 
-- [ ] In `convex/workspaces.ts`, add:
+- [x] In `convex/workspaces.ts`, add:
   - `createInvite` mutation — generates UUID token, sets 7-day expiry, inserts into `workspaceInvites`
   - `acceptInvite` mutation — validates token, checks expiry and use, inserts `workspaceMembers`
-- [ ] Create `app/invite/[token]/page.tsx` — shows workspace name + "Accept Invitation" button → calls `acceptInvite` → redirect to dashboard. On error (`INVITE_EXPIRED`), shows error message.
+- [x] Create `app/invite/[token]/page.tsx` — shows workspace name + "Accept Invitation" button → calls `acceptInvite` → redirect to dashboard. On error (`INVITE_EXPIRED`), shows error message.
 
 > `git commit: add workspace invite system with token generation and acceptance`
 
 ### 3.3 Build workspace member management backend
 
-- [ ] In `convex/workspaces.ts`, add:
+- [x] In `convex/workspaces.ts`, add:
   - `updateMemberRole` mutation
   - `removeMember` mutation (also deletes board member overrides)
   - `transferOwnership` mutation
@@ -245,50 +245,48 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 3.4 Build the app shell (layout + sidebar)
 
-- [ ] Create `app/(app)/layout.tsx` — the authenticated shell wrapper. Contains `AppSidebar` and a main content area.
-- [ ] Create `components/layout/AppSidebar.tsx`:
+- [x] Create `app/(app)/layout.tsx` — the authenticated shell wrapper. Contains `AppSidebar` and a main content area.
+- [x] Create `components/layout/AppSidebar.tsx`:
   - Top: OnPoint logo / brand
   - Middle: `listMyWorkspaces` reactive query → render each workspace as a nav link
   - Active workspace highlighted
   - Bottom: `UserMenu` component (avatar + sign out)
-- [ ] Create `components/layout/UserMenu.tsx` — shadcn DropdownMenu with user name, email, and "Sign Out" option
-- [ ] Add Tailwind: fixed-width sidebar (`w-60`), full height, dark border on right
+- [x] Create `components/layout/UserMenu.tsx` — shadcn DropdownMenu with user name, email, and "Sign Out" option
+- [x] Add Tailwind: fixed-width sidebar (`w-60`), full height, dark border on right
 
 > `git commit: add authenticated app shell with sidebar and user menu`
 
 ### 3.5 Build the workspace dashboard page
 
-- [ ] Create `app/(app)/[workspaceSlug]/page.tsx`
-- [ ] Create `convex/boards.ts` — implement `listByWorkspace` query (filters boards by visibility and user access)
-- [ ] Create `components/workspace/WorkspaceDashboard.tsx`:
+- [x] Create `app/(app)/[workspaceSlug]/page.tsx`
+- [x] Create `convex/boards.ts` — implement `listByWorkspace` query (filters boards by visibility and user access)
+- [x] Create `components/workspace/WorkspaceDashboard.tsx`:
   - Workspace name header
   - Grid of `BoardCard` components
   - "New Board" button → opens `CreateBoardDialog`
-- [ ] Create `components/workspace/BoardCard.tsx` — board name, visibility badge, click navigates to board
-- [ ] Create `components/workspace/CreateBoardDialog.tsx` — shadcn Dialog with name input + visibility radio → calls `createBoard` mutation
+- [x] Create `components/workspace/BoardCard.tsx` — board name, visibility badge, click navigates to board
+- [x] Create `components/workspace/CreateBoardDialog.tsx` — shadcn Dialog with name input + visibility radio → calls `createBoard` mutation
 
 > `git commit: add workspace dashboard with board grid and create board dialog`
 
 ### 3.6 Build workspace settings page
 
-- [ ] Create `app/(app)/[workspaceSlug]/settings/page.tsx`
-- [ ] Create `components/workspace/MembersList.tsx`:
+- [x] Create `app/(app)/[workspaceSlug]/settings/page.tsx`
+- [x] Create `components/workspace/MembersList.tsx`:
   - Table of workspace members (name, email, role selector, remove button)
   - Role selector calls `updateMemberRole` mutation
   - Remove button calls `removeMember` mutation (with confirmation)
   - Owner/Admin only: hide role selector and remove button for guests and members
-- [ ] Create `components/workspace/InviteMemberDialog.tsx`:
+- [x] Create `components/workspace/InviteMemberDialog.tsx`:
   - Email input → calls `createInvite` mutation
   - Shows generated invite link with copy button
-- [ ] Wire the "Transfer Ownership" and "Delete Workspace" danger-zone actions (Owner only)
+- [x] Wire the "Transfer Ownership" and "Delete Workspace" danger-zone actions (Owner only)
 
 > `git commit: add workspace settings page with member management and invite system`
 
 ### 3.7 Wire the onboarding "Join" flow
 
-- [ ] Return to `app/onboarding/page.tsx` — wire the "Join a workspace" input to extract the token from the pasted link and call `acceptInvite`. On success, redirect to the workspace dashboard.
-
-> `git commit: wire join workspace flow on onboarding page using invite token`
+- [x] Return to `app/onboarding/page.tsx` — wire the "Join a workspace" input to extract the token from the pasted link and call `acceptInvite`. On success, redirect to the workspace dashboard.
 
 ---
 

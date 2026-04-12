@@ -51,7 +51,8 @@ export default function BoardSettingsPage() {
   }, [boardName, board, boardId, updateBoard])
 
   const handleVisibilityChange = useCallback(
-    (value: string) => {
+    (value: string | null) => {
+      if (!value) return
       const visibility = value as 'private' | 'workspace'
       updateBoard({ boardId, visibility })
     },
@@ -59,7 +60,8 @@ export default function BoardSettingsPage() {
   )
 
   const handlePermissionChange = useCallback(
-    (userId: Id<'users'>, permission: string) => {
+    (userId: Id<'users'>, permission: string | null) => {
+      if (!permission) return
       setPermission({
         boardId,
         targetUserId: userId,
