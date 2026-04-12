@@ -6,7 +6,7 @@ import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { cn } from '@/lib/utils'
 import { UserMenu } from '@/components/layout/UserMenu'
-import { LayoutDashboard } from 'lucide-react'
+import { LayoutDashboard, Settings } from 'lucide-react'
 
 // Deterministic color for a workspace based on its name
 const WORKSPACE_COLORS = [
@@ -53,25 +53,39 @@ export function AppSidebar() {
 
             return (
               <li key={workspace._id}>
-                <Link
-                  href={href}
-                  className={cn(
-                    'flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors',
-                    isActive
-                      ? 'bg-muted font-medium text-foreground'
-                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                  )}
-                >
-                  <span
+                <div className="flex items-center gap-1">
+                  <Link
+                    href={href}
                     className={cn(
-                      'flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold text-white',
-                      getWorkspaceColor(workspace.name)
+                      'flex flex-1 items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors',
+                      isActive
+                        ? 'bg-muted font-medium text-foreground'
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                     )}
                   >
-                    {workspace.name.charAt(0).toUpperCase()}
-                  </span>
-                  <span className="truncate">{workspace.name}</span>
-                </Link>
+                    <span
+                      className={cn(
+                        'flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold text-white',
+                        getWorkspaceColor(workspace.name)
+                      )}
+                    >
+                      {workspace.name.charAt(0).toUpperCase()}
+                    </span>
+                    <span className="truncate">{workspace.name}</span>
+                  </Link>
+                  <Link
+                    href={`${href}/settings`}
+                    className={cn(
+                      'flex shrink-0 items-center justify-center rounded p-1 transition-colors',
+                      pathname.startsWith(`${href}/settings`)
+                        ? 'text-foreground'
+                        : 'text-muted-foreground/50 hover:text-muted-foreground'
+                    )}
+                    aria-label={`${workspace.name} settings`}
+                  >
+                    <Settings className="size-3.5" />
+                  </Link>
+                </div>
               </li>
             )
           })}

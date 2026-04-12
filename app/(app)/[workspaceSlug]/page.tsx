@@ -47,6 +47,7 @@ export default function WorkspacePage() {
         _id: workspace._id,
         name: workspace.name,
         slug: workspace.slug,
+        role: workspace.role,
       }}
     />
   )

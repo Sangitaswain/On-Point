@@ -4,23 +4,28 @@ import { useState } from 'react'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
-import { Plus } from 'lucide-react'
+import { Plus, UserPlus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { BoardCard } from '@/components/workspace/BoardCard'
 import { CreateBoardDialog } from '@/components/workspace/CreateBoardDialog'
+import { InviteMemberDialog } from '@/components/workspace/InviteMemberDialog'
 
 interface WorkspaceDashboardProps {
   workspace: {
     _id: Id<'workspaces'>
     name: string
     slug: string
+    role: 'owner' | 'admin' | 'member' | 'guest'
   }
 }
 
 export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
+
+  const canInvite = workspace.role === 'owner' || workspace.role === 'admin'
 
   const boards = useQuery(api.boards.listByWorkspace, {
     workspaceId: workspace._id,
@@ -38,10 +43,18 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
             Manage your boards and projects
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="size-4" data-icon="inline-start" />
-          New Board
-        </Button>
+        <div className="flex items-center gap-2">
+          {canInvite && (
+            <Button variant="outline" onClick={() => setInviteDialogOpen(true)}>
+              <UserPlus className="size-4" data-icon="inline-start" />
+              Invite
+            </Button>
+          )}
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="size-4" data-icon="inline-start" />
+            New Board
+          </Button>
+        </div>
       </div>
 
       {/* Board grid */}
@@ -81,6 +94,13 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
         workspaceId={workspace._id}
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
+      />
+
+      {/* Invite member dialog */}
+      <InviteMemberDialog
+        workspaceId={workspace._id}
+        open={inviteDialogOpen}
+        onOpenChange={setInviteDialogOpen}
       />
     </div>
   )
