@@ -548,65 +548,65 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 8: Socket.IO Server
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** A standalone Socket.IO Node.js server is running locally and on Render. It can accept authenticated connections, manage board rooms, and broadcast all card/column events to room members.
 
 ### 8.1 Initialize the Socket.IO server project
 
-- [ ] Create a `server/` folder at the project root (or a separate repository — choose one and stay consistent)
-- [ ] Initialize: `cd server && npm init -y`
-- [ ] Install: `npm install socket.io @clerk/backend ioredis @socket.io/redis-adapter`
-- [ ] Install dev: `npm install -D typescript ts-node @types/node nodemon`
-- [ ] Create `server/tsconfig.json` with `target: "ES2020"`, `module: "commonjs"`, `strict: true`
-- [ ] Create `server/package.json` scripts: `"dev": "nodemon src/index.ts"`, `"build": "tsc"`, `"start": "node dist/index.js"`
+- [x] Create a `server/` folder at the project root (or a separate repository — choose one and stay consistent)
+- [x] Initialize: `cd server && npm init -y`
+- [x] Install: `npm install socket.io @clerk/backend ioredis @socket.io/redis-adapter`
+- [x] Install dev: `npm install -D typescript ts-node @types/node nodemon`
+- [x] Create `server/tsconfig.json` with `target: "ES2020"`, `module: "commonjs"`, `strict: true`
+- [x] Create `server/package.json` scripts: `"dev": "nodemon src/index.ts"`, `"build": "tsc"`, `"start": "node dist/index.js"`
 
 > `git commit: initialize Socket.IO server project with TypeScript configuration`
 
 ### 8.2 Set up the HTTP and Socket.IO server
 
-- [ ] Create `server/src/index.ts`:
+- [x] Create `server/src/index.ts`:
   - Create an HTTP server using Node's `createServer`
   - Create a Socket.IO `Server` instance with CORS set to `process.env.ALLOWED_ORIGIN`
   - Call `setupRedisAdapter(io)` (wired in 8.4)
   - Call `io.use(authMiddleware)` (wired in 8.3)
   - Call `io.on('connection', handleConnection)`
   - Listen on `process.env.PORT ?? 3001`
-- [ ] Create `server/.env` — `PORT=3001`, `ALLOWED_ORIGIN=http://localhost:3000`
-- [ ] Verify the server starts without errors: `npm run dev`
+- [x] Create `server/.env` — `PORT=3001`, `ALLOWED_ORIGIN=http://localhost:3000`
+- [x] Verify the server starts without errors: `npm run dev`
 
 > `git commit: set up Socket.IO HTTP server with CORS and environment configuration`
 
 ### 8.3 Implement auth middleware
 
-- [ ] Create `server/src/middleware/auth.ts` — full implementation from BP.md section 11.2
+- [x] Create `server/src/middleware/auth.ts` — full implementation from BP.md section 11.2
   - Extract `token` from `socket.handshake.auth.token`
   - Call `verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY })` from `@clerk/backend`
   - On success: set `socket.data.userId` and `socket.data.userName`
   - On failure: call `next(new Error('INVALID_TOKEN'))`
-- [ ] Add `CLERK_SECRET_KEY` to `server/.env`
-- [ ] Test: connect a Socket.IO client without a token — verify connection is refused
+- [x] Add `CLERK_SECRET_KEY` to `server/.env`
+- [x] Test: connect a Socket.IO client without a token — verify connection is refused
 
 > `git commit: add Clerk JWT authentication middleware to Socket.IO server`
 
 ### 8.4 Implement the Redis adapter
 
-- [ ] Create `server/src/redis.ts` — full `setupRedisAdapter` implementation from BP.md section 12
+- [x] Create `server/src/redis.ts` — full `setupRedisAdapter` implementation from BP.md section 12
   - Connect `pubClient` and `subClient` using `ioredis`
   - Pass to `io.adapter(createAdapter(pubClient, subClient))`
   - Log redis connection errors to console
-- [ ] Add `UPSTASH_REDIS_URL` to `server/.env` (from Upstash dashboard)
+- [x] Add `UPSTASH_REDIS_URL` to `server/.env` (from Upstash dashboard)
 
 > `git commit: connect Socket.IO server to Upstash Redis via redis adapter`
 
 ### 8.5 Implement the presence store
 
-- [ ] Create `server/src/presence.ts` — in-memory `Map` with `addToPresence`, `removeFromPresence`, `getPresence` functions (BP.md section 11.4)
+- [x] Create `server/src/presence.ts` — in-memory `Map` with `addToPresence`, `removeFromPresence`, `getPresence` functions (BP.md section 11.4)
 
 > `git commit: add in-memory presence store for board room management`
 
 ### 8.6 Implement all event handlers
 
-- [ ] Create `server/src/handlers/connection.ts` — full `handleConnection` function from BP.md section 11.3
+- [x] Create `server/src/handlers/connection.ts` — full `handleConnection` function from BP.md section 11.3
   - `JOIN_BOARD`: join socket room, update presence, emit `PRESENCE_INIT` to joining socket, broadcast `PRESENCE_UPDATE` to room
   - `LEAVE_BOARD`: leave room, remove presence, broadcast `PRESENCE_UPDATE`
   - `disconnect`: auto-call `LEAVE_BOARD` cleanup
@@ -619,7 +619,7 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 8.7 Implement rate limiting
 
-- [ ] Create `server/src/rateLimit.ts` — Redis-based rate limiter from BP.md section 13
+- [x] Create `server/src/rateLimit.ts` — Redis-based rate limiter from BP.md section 13
   - Key format: `ratelimit:{userId}`
   - `INCR` + `EXPIRE` on first event
   - Limit: 30 events per 10-second window
