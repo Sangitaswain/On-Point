@@ -40,6 +40,18 @@ All project documentation lives in the `doc/` directory. Read these files for fu
 - **Consistent API responses** — use a standard error/success format everywhere
 - **Read before writing** — always read existing files before modifying them
 
+## README Maintenance (from Step 9 onwards)
+
+**Update `README.md` alongside every step, as part of completing that step.**
+
+When a step is done:
+1. Update the **Build Progress** table in README — change the step's status from `Planned` / `Up next` to `Complete` and advance the `Up next` marker to the next step.
+2. If the step adds new features, add them to the **Features** section under the appropriate heading.
+3. If the step introduces new environment variables, add them to the **Environment Variables** section.
+4. If the step adds new files or directories that someone setting up the codebase needs to know about, update the **Project Structure** section.
+
+The README is the first thing anyone clones the repo sees. Keep it accurate — a stale README is worse than no README.
+
 ## Tech Stack Quick Reference
 
 - **Framework:** Next.js (App Router, TypeScript)
