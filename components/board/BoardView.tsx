@@ -43,7 +43,6 @@ export function BoardView({ boardId }: BoardViewProps) {
   const reorderColumn = useMutation(api.columns.reorderColumn)
 
   const socket = useSocket()
-  const { connected } = useBoardRoom({ boardId })
 
   // Card modal state
   const [openCardId, setOpenCardId] = useState<Id<'cards'> | null>(null)
@@ -54,6 +53,73 @@ export function BoardView({ boardId }: BoardViewProps) {
 
   // Track drag in a ref so the sync effects don't re-trigger on ref change
   const isDraggingRef = useRef(false)
+
+  // ── Socket event handlers — update local state when OTHER users make changes ──
+  // These fire only when the socket server broadcasts an event from another user.
+  // setLocalCards/setLocalColumns are stable refs so empty dependency arrays are fine.
+  const onRemoteCardMoved = useCallback(
+    ({ cardId, newColumnId, newOrderIndex }: { cardId: string; newColumnId: string; newOrderIndex: number }) => {
+      if (isDraggingRef.current) return // don't interrupt an active drag
+      setLocalCards((prev) =>
+        prev.map((c) =>
+          c._id === cardId
+            ? { ...c, columnId: newColumnId as Id<'columns'>, orderIndex: newOrderIndex }
+            : c
+        )
+      )
+    },
+    []
+  )
+
+  const onRemoteCardUpdated = useCallback(
+    ({ cardId, changes }: { cardId: string; changes: Record<string, unknown> }) => {
+      setLocalCards((prev) =>
+        prev.map((c) => (c._id === cardId ? { ...c, ...changes } : c))
+      )
+    },
+    []
+  )
+
+  const onRemoteCardDeleted = useCallback(
+    ({ cardId }: { cardId: string }) => {
+      setLocalCards((prev) => prev.filter((c) => c._id !== cardId))
+      setOpenCardId((prev) => (prev === cardId ? null : prev))
+    },
+    []
+  )
+
+  const onRemoteColumnUpdated = useCallback(
+    ({ columnId, title, newOrderIndex }: { columnId: string; title?: string; newOrderIndex?: number }) => {
+      setLocalColumns((prev) =>
+        prev.map((c) => {
+          if (c._id !== columnId) return c
+          return {
+            ...c,
+            ...(title !== undefined ? { title } : {}),
+            ...(newOrderIndex !== undefined ? { orderIndex: newOrderIndex } : {}),
+          }
+        })
+      )
+    },
+    []
+  )
+
+  const onRemoteColumnDeleted = useCallback(
+    ({ columnId }: { columnId: string }) => {
+      setLocalColumns((prev) => prev.filter((c) => c._id !== columnId))
+      setLocalCards((prev) => prev.filter((c) => (c.columnId as string) !== columnId))
+    },
+    []
+  )
+
+  const { connected } = useBoardRoom({
+    boardId,
+    onCardMoved: onRemoteCardMoved,
+    onCardUpdated: onRemoteCardUpdated,
+    onCardDeleted: onRemoteCardDeleted,
+    onColumnUpdated: onRemoteColumnUpdated,
+    onColumnDeleted: onRemoteColumnDeleted,
+  })
 
   // Active drag item id (for DragOverlay)
   const [activeDragId, setActiveDragId] = useState<string | null>(null)

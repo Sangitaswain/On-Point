@@ -64,16 +64,25 @@ export const syncUser = mutation({
     const identity = await ctx.auth.getUserIdentity()
     if (!identity) throw new ConvexError({ code: 'UNAUTHENTICATED' })
 
+    // Best-effort name: display name > first+last > email prefix > fallback
+    const derivedName =
+      identity.name?.trim() ||
+      [identity.givenName, identity.familyName].filter(Boolean).join(' ').trim() ||
+      identity.email?.split('@')[0] ||
+      'User'
+
+    const avatarUrl = (identity.pictureUrl as string | undefined) ?? undefined
+
     const existing = await ctx.db
       .query('users')
       .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique()
 
     if (existing) {
-      // Update name/avatar in case they changed
+      // Always update — fixes users who were created with name "Unknown"
       await ctx.db.patch(existing._id, {
-        name: identity.name ?? existing.name,
-        avatarUrl: (identity.pictureUrl as string | undefined) ?? existing.avatarUrl,
+        name: derivedName,
+        avatarUrl: avatarUrl ?? existing.avatarUrl,
       })
       return existing._id
     }
@@ -81,8 +90,8 @@ export const syncUser = mutation({
     return await ctx.db.insert('users', {
       clerkId: identity.subject,
       email: identity.email ?? '',
-      name: identity.name ?? 'Unknown',
-      avatarUrl: (identity.pictureUrl as string | undefined) ?? undefined,
+      name: derivedName,
+      avatarUrl,
     })
   },
 })
