@@ -485,19 +485,19 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 7: Drag-and-Drop
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** Cards can be dragged between columns and reordered within columns. The new position persists in Convex immediately. All connected users will see the change (real-time wiring added in Step 9).
 
 ### 7.1 Install and configure dnd-kit
 
-- [ ] Install: `npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities`
-- [ ] Create `lib/orderIndex.ts` — implement `computeOrderIndex(prev, next)` gap strategy function (FP.md section 9.4)
+- [x] Install: `npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities`
+- [x] Create `lib/orderIndex.ts` — implement `computeOrderIndex(prev, next)` gap strategy function (FP.md section 9.4)
 
 > `git commit: install dnd-kit and add order index gap strategy utility`
 
 ### 7.2 Wrap the board in DndContext
 
-- [ ] In `components/board/BoardView.tsx`:
+- [x] In `components/board/BoardView.tsx`:
   - Import `DndContext`, `DragOverlay`, `closestCorners`, `PointerSensor`, `KeyboardSensor`, `useSensors` from dnd-kit
   - Configure sensors: `PointerSensor` with `activationConstraint: { distance: 8 }` (prevents accidental drag on click), `KeyboardSensor`
   - Wrap column list in `<DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={...} onDragEnd={...}>`
@@ -508,28 +508,28 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 7.3 Make cards sortable
 
-- [ ] In `components/card/CardItem.tsx`:
+- [x] In `components/card/CardItem.tsx`:
   - Replace with a `useSortable({ id: card._id })` hook
   - Apply `transform` and `transition` styles from dnd-kit to the card element
   - Add a drag handle (six-dot icon) as the only draggable area (`listeners` applied to handle, not the full card)
   - The click-to-open behavior must coexist with dragging — the `activationConstraint: { distance: 8 }` in the sensor handles this (short clicks don't trigger drag)
-- [ ] In `components/column/Column.tsx`:
+- [x] In `components/column/Column.tsx`:
   - Wrap card list in `<SortableContext items={cardIds} strategy={verticalListSortingStrategy}>`
 
 > `git commit: make cards sortable within columns using dnd-kit useSortable`
 
 ### 7.4 Make columns sortable
 
-- [ ] In `components/column/Column.tsx`:
+- [x] In `components/column/Column.tsx`:
   - Wrap the entire column in `useSortable({ id: column._id })` with the drag handle being the column header
-- [ ] In `components/board/BoardView.tsx`:
+- [x] In `components/board/BoardView.tsx`:
   - Wrap the column list in `<SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>`
 
 > `git commit: make columns sortable within the board using horizontal SortableContext`
 
 ### 7.5 Implement the onDragEnd handler
 
-- [ ] In `BoardView.tsx`, implement the full `onDragEnd` handler (FP.md section 9.3):
+- [x] In `BoardView.tsx`, implement the full `onDragEnd` handler (FP.md section 9.3):
   - Identify drag type: card or column
   - For card drag:
     - Determine new `columnId` and position among sibling cards
@@ -540,7 +540,7 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
   - For column drag:
     - Compute new `orderIndex` for the column
     - Call `reorderColumn` Convex mutation
-- [ ] Verify that refreshing the page shows cards and columns in their new positions (persisted in Convex)
+- [x] Verify that refreshing the page shows cards and columns in their new positions (persisted in Convex)
 
 > `git commit: implement onDragEnd handler with optimistic updates and Convex persistence`
 

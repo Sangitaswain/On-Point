@@ -4,7 +4,9 @@ import { useState, useCallback } from 'react'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
-import { MoreHorizontal, Calendar, Trash2, ExternalLink } from 'lucide-react'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { GripVertical, MoreHorizontal, Calendar, Trash2, ExternalLink } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +34,7 @@ interface CardLabel {
 interface CardItemProps {
   card: {
     _id: Id<'cards'>
+    columnId: Id<'columns'>
     title: string
     assigneeId?: Id<'users'>
     dueDate?: string
@@ -65,6 +68,24 @@ export function CardItem({ card, onClick }: CardItemProps) {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: card._id,
+    data: { type: 'card', columnId: card.columnId },
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  }
+
   const deleteCard = useMutation(api.cards.deleteCard)
 
   const handleDelete = useCallback(async () => {
@@ -84,15 +105,30 @@ export function CardItem({ card, onClick }: CardItemProps) {
   return (
     <>
       <div
+        ref={setNodeRef}
+        style={style}
         role="button"
         tabIndex={0}
         onClick={onClick}
         onKeyDown={(e) => e.key === 'Enter' && onClick()}
         className="group relative w-full rounded-lg border border-border bg-card px-3 py-2.5 text-left shadow-sm cursor-pointer hover:border-primary/40 hover:shadow-md transition-all"
       >
-        {/* Top row: label dots + three-dot menu */}
+        {/* Top row: drag handle + label dots + three-dot menu */}
         <div className="flex items-center justify-between mb-1.5 min-h-[16px]">
-          <div className="flex items-center gap-1">
+          {/* Drag handle */}
+          <button
+            type="button"
+            {...listeners}
+            {...attributes}
+            onClick={(e) => e.stopPropagation()}
+            className="cursor-grab opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 text-muted-foreground hover:bg-muted touch-none -ml-1 mr-0.5 shrink-0"
+            aria-label="Drag card"
+          >
+            <GripVertical className="size-3" />
+          </button>
+
+          {/* Label dots */}
+          <div className="flex items-center gap-1 flex-1">
             {labels.slice(0, 5).map((l, i) => (
               <span
                 key={i}
@@ -102,7 +138,7 @@ export function CardItem({ card, onClick }: CardItemProps) {
             ))}
           </div>
 
-          {/* Three-dot menu — stop propagation so it doesn't open the modal */}
+          {/* Three-dot menu */}
           <div
             role="none"
             onClick={(e) => e.stopPropagation()}

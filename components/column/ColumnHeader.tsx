@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from 'react'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
-import { Trash2 } from 'lucide-react'
+import { GripVertical, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DeleteColumnDialog } from '@/components/column/DeleteColumnDialog'
@@ -14,9 +14,13 @@ interface ColumnHeaderProps {
     _id: Id<'columns'>
     title: string
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dragListeners?: Record<string, any>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dragAttributes?: Record<string, any>
 }
 
-export function ColumnHeader({ column }: ColumnHeaderProps) {
+export function ColumnHeader({ column, dragListeners, dragAttributes }: ColumnHeaderProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(column.title)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -46,7 +50,18 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   )
 
   return (
-    <div className="flex items-center justify-between px-2 py-1">
+    <div className="flex items-center justify-between px-1 py-1">
+      {dragListeners && (
+        <button
+          type="button"
+          {...dragListeners}
+          {...dragAttributes}
+          className="cursor-grab shrink-0 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors touch-none"
+          aria-label="Drag column"
+        >
+          <GripVertical className="size-3.5" />
+        </button>
+      )}
       {isEditing ? (
         <Input
           ref={inputRef}
