@@ -79,11 +79,13 @@ export const syncUser = mutation({
       .unique()
 
     if (existing) {
-      // Always update — fixes users who were created with name "Unknown"
-      await ctx.db.patch(existing._id, {
-        name: derivedName,
-        avatarUrl: avatarUrl ?? existing.avatarUrl,
-      })
+      // Only update name when the JWT gave us a real name.
+      // If derivedName fell all the way back to 'User', the JWT template
+      // doesn't include name claims — preserve whatever the webhook stored.
+      const patch: { name?: string; avatarUrl?: string } = {}
+      if (derivedName !== 'User') patch.name = derivedName
+      if (avatarUrl) patch.avatarUrl = avatarUrl
+      if (Object.keys(patch).length > 0) await ctx.db.patch(existing._id, patch)
       return existing._id
     }
 

@@ -13,11 +13,16 @@ const io = new Server(httpServer, {
   },
 })
 
-setupRedisAdapter(io)
-io.use(authMiddleware)
-io.on('connection', handleConnection)
+async function start() {
+  await setupRedisAdapter(io)
 
-const PORT = process.env.PORT ?? 3001
-httpServer.listen(PORT, () => {
-  console.log(`Socket.IO server listening on port ${PORT}`)
-})
+  io.use(authMiddleware)
+  io.on('connection', handleConnection)
+
+  const PORT = process.env.PORT ?? 3001
+  httpServer.listen(PORT, () => {
+    console.log(`Socket.IO server listening on port ${PORT}`)
+  })
+}
+
+start().catch(console.error)
