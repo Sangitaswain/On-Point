@@ -53,6 +53,40 @@ export const updateUser = mutation({
   },
 })
 
+// ─── On-demand user sync ─────────────────────────────────────────────────────
+// Called from the frontend on every sign-in as a fallback for when the Clerk
+// webhook hasn't fired yet (common in local dev where localhost isn't public).
+// Idempotent — safe to call repeatedly.
+
+export const syncUser = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new ConvexError({ code: 'UNAUTHENTICATED' })
+
+    const existing = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique()
+
+    if (existing) {
+      // Update name/avatar in case they changed
+      await ctx.db.patch(existing._id, {
+        name: identity.name ?? existing.name,
+        avatarUrl: (identity.pictureUrl as string | undefined) ?? existing.avatarUrl,
+      })
+      return existing._id
+    }
+
+    return await ctx.db.insert('users', {
+      clerkId: identity.subject,
+      email: identity.email ?? '',
+      name: identity.name ?? 'Unknown',
+      avatarUrl: (identity.pictureUrl as string | undefined) ?? undefined,
+    })
+  },
+})
+
 // ─── Authenticated queries ───────────────────────────────────────────────────
 
 // Query — get the current authenticated user's record

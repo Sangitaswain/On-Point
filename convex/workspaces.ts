@@ -75,7 +75,16 @@ export const createWorkspace = mutation({
 export const listMyWorkspaces = query({
   args: {},
   handler: async (ctx) => {
-    const user = await requireUser(ctx)
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) return []
+
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique()
+
+    // User record not synced yet (webhook pending) — return empty list gracefully
+    if (!user) return []
 
     const memberships = await ctx.db
       .query('workspaceMembers')
