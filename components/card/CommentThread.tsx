@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
@@ -10,11 +11,20 @@ import { CommentInput } from './CommentInput'
 
 interface CommentThreadProps {
   cardId: Id<'cards'>
+  boardId: Id<'boards'>
 }
 
-export function CommentThread({ cardId }: CommentThreadProps) {
+export function CommentThread({ cardId, boardId }: CommentThreadProps) {
   const comments = useQuery(api.comments.listByCard, { cardId })
   const currentUser = useQuery(api.users.getMe)
+  const listRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to newest comment whenever the list grows
+  useEffect(() => {
+    if (listRef.current && comments && comments.length > 0) {
+      listRef.current.scrollTop = listRef.current.scrollHeight
+    }
+  }, [comments?.length])
 
   return (
     <div className="flex flex-col gap-4">
@@ -35,7 +45,7 @@ export function CommentThread({ cardId }: CommentThreadProps) {
           No comments yet. Be the first to add one.
         </p>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div ref={listRef} className="flex max-h-64 flex-col gap-3 overflow-y-auto pr-1">
           {comments.map((comment) => (
             <CommentItem
               key={comment._id}
@@ -46,7 +56,7 @@ export function CommentThread({ cardId }: CommentThreadProps) {
         </div>
       )}
 
-      <CommentInput cardId={cardId} />
+      <CommentInput cardId={cardId} boardId={boardId} />
     </div>
   )
 }

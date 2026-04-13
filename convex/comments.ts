@@ -3,6 +3,9 @@ import { mutation, query } from './_generated/server'
 import { requireUser } from './lib/auth'
 import { assertBoardPermission } from './lib/permissions'
 import { writeActivityLog } from './lib/activityLog'
+import { extractMentionedUserIds } from './lib/mentions'
+import { createNotification } from './lib/notifications'
+import { Id } from './_generated/dataModel'
 
 export const listByCard = query({
   args: { cardId: v.id('cards') },
@@ -47,6 +50,18 @@ export const createComment = mutation({
       authorId: user._id,
       body: args.body,
     })
+
+    // Fire MENTIONED notifications for each @mentioned workspace member
+    const mentionedIds = extractMentionedUserIds(args.body)
+    for (const uid of mentionedIds) {
+      await createNotification(ctx, {
+        userId: uid as Id<'users'>,
+        type: 'MENTIONED',
+        cardId: args.cardId,
+        boardId: card.boardId,
+        actorId: user._id,
+      })
+    }
 
     await writeActivityLog(ctx, {
       boardId: card.boardId,

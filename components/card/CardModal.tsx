@@ -125,7 +125,7 @@ export function CardModal({ cardId, onClose }: CardModalProps) {
                 </div>
 
                 <div className="border-t border-border px-6 py-5">
-                  <CommentThread cardId={cardId as Id<'cards'>} />
+                  <CommentThread cardId={cardId as Id<'cards'>} boardId={card.boardId} />
                 </div>
               </div>
 

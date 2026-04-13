@@ -738,44 +738,44 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 11: Comments & @Mentions
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** Users can post comments on cards. Comments appear in real time for all users with the card open. @mentions notify the mentioned user.
 
 ### 11.1 Add @mention support to the comment editor
 
-- [ ] Install: `npm install @tiptap/extension-mention tippy.js`
-- [ ] Upgrade `CommentInput` (currently a plain textarea) to a Tiptap editor with the Mention extension (FP.md section 10.2):
+- [x] Install: `npm install @tiptap/extension-mention tippy.js`
+- [x] Upgrade `CommentInput` (currently a plain textarea) to a Tiptap editor with the Mention extension (FP.md section 10.2):
   - `suggestion.items`: filters workspace members by the typed query
   - `suggestion.render`: renders a Tippy.js popup listing member options
   - Selecting a member inserts a mention node `{ type: "mention", attrs: { id, label } }`
-- [ ] Keep the plain `StarterKit` for the comment body (no heading buttons needed — just bold, italic, inline code)
+- [x] Keep the plain `StarterKit` for the comment body (no heading buttons needed — just bold, italic, inline code)
 
 > `git commit: add Tiptap @mention extension to comment input with member suggestions`
 
 ### 11.2 Wire @mention extraction in the createComment mutation
 
-- [ ] In `convex/comments.ts`, implement `createComment` with full @mention scanning (BP.md section 7.6):
+- [x] In `convex/comments.ts`, implement `createComment` with full @mention scanning (BP.md section 7.6):
   - Call `extractMentionedUserIds(body)` to walk the Tiptap JSON tree
   - For each valid mention (user is a workspace member, not the comment author): call `createNotification` helper (MENTIONED type)
-- [ ] Implement `extractMentionedUserIds` helper function in `convex/lib/mentions.ts`
+- [x] Implement `extractMentionedUserIds` helper function in `convex/lib/mentions.ts`
 
 > `git commit: extract @mentions from comment body and create notifications in Convex`
 
 ### 11.3 Make comments real-time via Convex
 
-- [ ] The `useQuery(api.comments.listByCard, { cardId })` in `CommentThread` is already reactive — new comments auto-appear. Verify this works when two users have the same card open.
-- [ ] Confirm comments scroll to the newest entry when a new comment is added
+- [x] The `useQuery(api.comments.listByCard, { cardId })` in `CommentThread` is already reactive — new comments auto-appear. Verify this works when two users have the same card open.
+- [x] Confirm comments scroll to the newest entry when a new comment is added
 
 > `git commit: verify real-time comment delivery via Convex reactive query`
 
 ### 11.4 Add edit and delete to CommentItem
 
-- [ ] Wire the edit flow in `CommentItem.tsx`:
+- [x] Wire the edit flow in `CommentItem.tsx`:
   - Click Edit → swap body display for a small Tiptap editor pre-loaded with existing content
   - Save → calls `updateComment` mutation
   - Cancel → revert to display mode
-- [ ] Wire the delete flow: calls `deleteComment` mutation with confirmation
-- [ ] Show edit/delete buttons only to the comment author (compare `comment.authorId` with current userId from Clerk)
+- [x] Wire the delete flow: calls `deleteComment` mutation with confirmation
+- [x] Show edit/delete buttons only to the comment author (compare `comment.authorId` with current userId from Clerk)
 
 > `git commit: add comment edit and delete with author-only visibility`
 
