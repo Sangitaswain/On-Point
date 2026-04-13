@@ -66,7 +66,8 @@ export const createColumn = mutation({
       metadata: { title: args.title.trim() },
     })
 
-    return columnId
+    const column = await ctx.db.get(columnId)
+    return column!
   },
 })
 

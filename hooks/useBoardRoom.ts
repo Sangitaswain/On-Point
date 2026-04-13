@@ -1,26 +1,10 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useSocket } from '@/components/providers/SocketProvider'
-import { Id } from '@/convex/_generated/dataModel'
+import { Doc, Id } from '@/convex/_generated/dataModel'
 
-type Card = {
-  _id: Id<'cards'>
-  columnId: Id<'columns'>
-  boardId: Id<'boards'>
-  title: string
-  orderIndex: number
-  description?: unknown
-  assigneeId?: Id<'users'>
-  dueDate?: string
-  labels?: { _id: string; cardId: string; label: string; color: string }[]
-}
-
-type Column = {
-  _id: Id<'columns'>
-  boardId: Id<'boards'>
-  title: string
-  orderIndex: number
-}
+type Card = Doc<'cards'>
+type Column = Doc<'columns'>
 
 interface UseBoardRoomOptions {
   boardId: Id<'boards'>
@@ -49,20 +33,25 @@ export function useBoardRoom({
   useEffect(() => {
     if (!socket) return
 
-    // Join the board room
-    socket.emit('JOIN_BOARD', { boardId })
-
-    // Connection state
-    const onConnect = () => setConnected(true)
+    // Connection state — re-join the board room on every (re)connect
+    const onConnect = () => {
+      setConnected(true)
+      socket.emit('JOIN_BOARD', { boardId })
+    }
     const onDisconnect = () => setConnected(false)
-    setConnected(socket.connected)
+
+    // Join immediately if already connected; otherwise wait for 'connect' event
+    if (socket.connected) {
+      setConnected(true)
+      socket.emit('JOIN_BOARD', { boardId })
+    }
 
     // Board event handlers
-    const handleCardCreated = (card: Card) => onCardCreated?.(card)
+    const handleCardCreated = (payload: { card: Card }) => onCardCreated?.(payload.card)
     const handleCardUpdated = (data: { cardId: string; changes: Partial<Card> }) => onCardUpdated?.(data)
     const handleCardMoved = (data: { cardId: string; newColumnId: string; newOrderIndex: number }) => onCardMoved?.(data)
     const handleCardDeleted = (data: { cardId: string }) => onCardDeleted?.(data)
-    const handleColumnCreated = (column: Column) => onColumnCreated?.(column)
+    const handleColumnCreated = (payload: { column: Column }) => onColumnCreated?.(payload.column)
     const handleColumnUpdated = (data: { columnId: string; title: string }) => onColumnUpdated?.(data)
     const handleColumnDeleted = (data: { columnId: string }) => onColumnDeleted?.(data)
     const handleRateLimited = () => toast.warning("You're sending events too quickly. Slow down.")

@@ -54,12 +54,16 @@ export function BoardView({ boardId }: BoardViewProps) {
   // Track drag in a ref so the sync effects don't re-trigger on ref change
   const isDraggingRef = useRef(false)
 
+  // Refs that track the cross-column drag state — avoids stale-closure issues in onDragEnd.
+  // onDragOver updates these inside the setLocalCards updater (synchronously, before React re-renders).
+  const dragSourceColumnRef = useRef<string | null>(null)
+  const dragTargetColumnRef = useRef<string | null>(null)
+  const dragTargetOrderRef = useRef<number>(0)
+
   // ── Socket event handlers — update local state when OTHER users make changes ──
-  // These fire only when the socket server broadcasts an event from another user.
-  // setLocalCards/setLocalColumns are stable refs so empty dependency arrays are fine.
   const onRemoteCardMoved = useCallback(
     ({ cardId, newColumnId, newOrderIndex }: { cardId: string; newColumnId: string; newOrderIndex: number }) => {
-      if (isDraggingRef.current) return // don't interrupt an active drag
+      if (isDraggingRef.current) return
       setLocalCards((prev) =>
         prev.map((c) =>
           c._id === cardId
@@ -112,11 +116,31 @@ export function BoardView({ boardId }: BoardViewProps) {
     []
   )
 
+  const onRemoteCardCreated = useCallback(
+    (card: NonNullable<typeof cards>[number]) => {
+      setLocalCards((prev) =>
+        prev.some((c) => c._id === card._id) ? prev : [...prev, card]
+      )
+    },
+    []
+  )
+
+  const onRemoteColumnCreated = useCallback(
+    (column: NonNullable<typeof columns>[number]) => {
+      setLocalColumns((prev) =>
+        prev.some((c) => c._id === column._id) ? prev : [...prev, column]
+      )
+    },
+    []
+  )
+
   const { connected } = useBoardRoom({
     boardId,
+    onCardCreated: onRemoteCardCreated,
     onCardMoved: onRemoteCardMoved,
     onCardUpdated: onRemoteCardUpdated,
     onCardDeleted: onRemoteCardDeleted,
+    onColumnCreated: onRemoteColumnCreated,
     onColumnUpdated: onRemoteColumnUpdated,
     onColumnDeleted: onRemoteColumnDeleted,
   })
@@ -160,12 +184,20 @@ export function BoardView({ boardId }: BoardViewProps) {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
+  // Record where the drag started so onDragEnd can detect cross-column moves
+  // regardless of whether its closure is stale.
   const onDragStart = useCallback(({ active }: DragStartEvent) => {
     isDraggingRef.current = true
     setActiveDragId(active.id as string)
-  }, [])
+    const card = localCards.find((c) => c._id === (active.id as string))
+    dragSourceColumnRef.current = card ? (card.columnId as string) : null
+    dragTargetColumnRef.current = card ? (card.columnId as string) : null
+    dragTargetOrderRef.current = card ? card.orderIndex : 0
+  }, [localCards])
 
-  // Called on pointer move — handle cross-column card moves for visual preview
+  // Called on pointer move — handle cross-column card moves for visual preview.
+  // IMPORTANT: refs are updated INSIDE the setLocalCards updater so the values
+  // are always current when onDragEnd reads them (before React re-renders).
   const onDragOver = useCallback(({ active, over }: DragOverEvent) => {
     if (!over || active.id === over.id) return
     if (active.data.current?.type !== 'card') return
@@ -175,7 +207,6 @@ export function BoardView({ boardId }: BoardViewProps) {
       if (!activeCard) return prev
 
       const overCard = prev.find((c) => c._id === over.id)
-      // over.id is either a card ID or a column ID
       const newColumnId: string = overCard
         ? (overCard.columnId as string)
         : (over.id as string)
@@ -199,6 +230,11 @@ export function BoardView({ boardId }: BoardViewProps) {
         newOrderIndex = computeOrderIndex(last, undefined)
       }
 
+      // Keep refs in sync so onDragEnd always has the correct target — even if
+      // React hasn't re-rendered yet and onDragEnd's closure is stale.
+      dragTargetColumnRef.current = newColumnId
+      dragTargetOrderRef.current = newOrderIndex
+
       return prev.map((c) =>
         c._id === active.id
           ? { ...c, columnId: newColumnId as Id<'columns'>, orderIndex: newOrderIndex }
@@ -214,6 +250,8 @@ export function BoardView({ boardId }: BoardViewProps) {
 
       if (!over) {
         // Cancelled — revert
+        dragSourceColumnRef.current = null
+        dragTargetColumnRef.current = null
         if (cards) setLocalCards([...cards])
         if (columns) setLocalColumns([...columns])
         return
@@ -223,34 +261,44 @@ export function BoardView({ boardId }: BoardViewProps) {
 
       if (activeType === 'card') {
         const activeId = active.id as string
-        const overId = over.id as string
 
-        const activeCard = localCards.find((c) => c._id === activeId)
-        if (!activeCard) return
+        // Use refs for cross-column detection: refs are updated synchronously inside
+        // the setLocalCards updater in onDragOver, so they're never stale here.
+        const isCrossColumn =
+          dragSourceColumnRef.current !== null &&
+          dragTargetColumnRef.current !== null &&
+          dragSourceColumnRef.current !== dragTargetColumnRef.current
 
-        const overIsColumn = localColumns.some((c) => c._id === overId)
+        if (isCrossColumn) {
+          const newColumnId = dragTargetColumnRef.current as Id<'columns'>
+          const newOrderIndex = dragTargetOrderRef.current
 
-        if (overIsColumn || (activeCard.columnId as string) !== (localCards.find((c) => c._id === overId)?.columnId as string)) {
-          // Cross-column: local state already updated by onDragOver — just persist
           moveCard({
             cardId: activeId as Id<'cards'>,
-            newColumnId: activeCard.columnId,
-            newOrderIndex: activeCard.orderIndex,
+            newColumnId,
+            newOrderIndex,
           }).then(() => {
             socket?.emit('CARD_MOVED', {
               boardId,
               cardId: activeId,
-              newColumnId: activeCard.columnId as string,
-              newOrderIndex: activeCard.orderIndex,
+              newColumnId: newColumnId as string,
+              newOrderIndex,
             })
           }).catch(() => {
             if (cards) setLocalCards([...cards])
           })
+
+          dragSourceColumnRef.current = null
+          dragTargetColumnRef.current = null
           return
         }
 
         // Within-column reorder
+        const overId = over.id as string
         if (activeId === overId) return
+
+        const activeCard = localCards.find((c) => c._id === activeId)
+        if (!activeCard) return
 
         const columnCards = localCards
           .filter((c) => c.columnId === activeCard.columnId)
@@ -326,6 +374,8 @@ export function BoardView({ boardId }: BoardViewProps) {
   const onDragCancel = useCallback(() => {
     isDraggingRef.current = false
     setActiveDragId(null)
+    dragSourceColumnRef.current = null
+    dragTargetColumnRef.current = null
     if (cards) setLocalCards([...cards])
     if (columns) setLocalColumns([...columns])
   }, [cards, columns])

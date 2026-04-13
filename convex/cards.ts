@@ -109,7 +109,8 @@ export const createCard = mutation({
       metadata: { title: args.title.trim() },
     })
 
-    return cardId
+    const card = await ctx.db.get(cardId)
+    return card!
   },
 })
 
