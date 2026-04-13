@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Settings } from 'lucide-react'
 import { Id } from '@/convex/_generated/dataModel'
 import { Button } from '@/components/ui/button'
+import { PresenceBar } from '@/components/board/PresenceBar'
 
 interface BoardHeaderProps {
   board: {
@@ -19,11 +20,14 @@ export function BoardHeader({ board, workspaceSlug }: BoardHeaderProps) {
       <h1 className="text-xl font-bold text-foreground truncate">
         {board.title}
       </h1>
-      <Link href={`/${workspaceSlug}/board/${board._id}/settings`}>
-        <Button variant="ghost" size="icon-sm" aria-label="Board settings">
-          <Settings className="size-4" />
-        </Button>
-      </Link>
+      <div className="flex items-center gap-3">
+        <PresenceBar boardId={board._id} />
+        <Link href={`/${workspaceSlug}/board/${board._id}/settings`}>
+          <Button variant="ghost" size="icon-sm" aria-label="Board settings">
+            <Settings className="size-4" />
+          </Button>
+        </Link>
+      </div>
     </header>
   )
 }

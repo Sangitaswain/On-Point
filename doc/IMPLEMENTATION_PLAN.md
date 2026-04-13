@@ -709,7 +709,7 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 10: Presence
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** Users on the same board see each other's avatars in real time. Avatars appear when a user joins and disappear when they leave or disconnect.
 
 ### 10.1 Build the usePresence hook
@@ -725,12 +725,12 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 10.2 Build the PresenceBar component
 
-- [ ] Create `components/board/PresenceBar.tsx`:
+- [x] Create `components/board/PresenceBar.tsx`:
   - Calls `usePresence(boardId)` to get online user list
   - Renders up to 5 user avatars inline (shadcn `Avatar` with Tooltip showing display name)
   - Overflow: "+N" badge if more than 5 users
   - Avatars animate in with a Tailwind `transition` when joining/leaving (`opacity-0 → opacity-100`)
-- [ ] Mount `PresenceBar` inside `BoardView.tsx` at the top-right of the board header area
+- [x] Mount `PresenceBar` inside `BoardView.tsx` at the top-right of the board header area
 
 > `git commit: add PresenceBar component showing live online user avatars`
 
