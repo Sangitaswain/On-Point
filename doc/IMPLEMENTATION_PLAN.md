@@ -714,7 +714,7 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 10.1 Build the usePresence hook
 
-- [ ] Create `hooks/usePresence.ts` (FP.md section 11.4):
+- [x] Create `hooks/usePresence.ts` (FP.md section 11.4):
   - Maintains a `Map<userId, { name, avatarUrl }>` as React state
   - Listens for `PRESENCE_INIT` (initial list on join) and `PRESENCE_UPDATE` (join/leave events)
   - On `PRESENCE_UPDATE` type `JOIN`: add user to the map
