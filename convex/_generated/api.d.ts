@@ -14,6 +14,7 @@ import type * as columns from "../columns.js";
 import type * as comments from "../comments.js";
 import type * as lib_activityLog from "../lib/activityLog.js";
 import type * as lib_auth from "../lib/auth.js";
+import type * as lib_mentions from "../lib/mentions.js";
 import type * as lib_notifications from "../lib/notifications.js";
 import type * as lib_orderIndex from "../lib/orderIndex.js";
 import type * as lib_permissions from "../lib/permissions.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   comments: typeof comments;
   "lib/activityLog": typeof lib_activityLog;
   "lib/auth": typeof lib_auth;
+  "lib/mentions": typeof lib_mentions;
   "lib/notifications": typeof lib_notifications;
   "lib/orderIndex": typeof lib_orderIndex;
   "lib/permissions": typeof lib_permissions;
