@@ -13,7 +13,13 @@ export async function authMiddleware(
       secretKey: process.env.CLERK_SECRET_KEY!,
     })
     socket.data.userId = payload.sub
-    socket.data.userName = (payload as Record<string, unknown>).name as string ?? payload.sub
+    // Prefer the name sent by the client SDK (always has the full profile);
+    // fall back to the JWT name claim, then the Clerk user ID.
+    const jwtName = (payload as Record<string, unknown>).name as string | undefined
+    socket.data.userName =
+      (socket.handshake.auth?.userName as string | undefined) ??
+      jwtName ??
+      payload.sub
     next()
   } catch {
     next(new Error('INVALID_TOKEN'))

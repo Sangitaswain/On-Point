@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { useAuth } from '@clerk/nextjs'
+import { useAuth, useUser } from '@clerk/nextjs'
 import { type Socket } from 'socket.io-client'
 import { getSocket, disconnectSocket } from '@/lib/socket'
 
@@ -9,6 +9,7 @@ const SocketContext = createContext<Socket | null>(null)
 
 export function SocketProvider({ children }: { children: React.ReactNode }) {
   const { getToken, isSignedIn } = useAuth()
+  const { user } = useUser()
   const [socket, setSocket] = useState<Socket | null>(null)
   const didConnect = useRef(false)
 
@@ -19,7 +20,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
     getToken().then((token) => {
       if (!token || !mounted) return
-      const s = getSocket(token)
+      const joined = [user?.firstName, user?.lastName].filter(Boolean).join(' ')
+      const userName = user?.fullName ?? (joined || user?.username) ?? undefined
+      const s = getSocket(token, userName ?? undefined)
       s.connect()
       setSocket(s)
       didConnect.current = true

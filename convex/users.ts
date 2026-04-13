@@ -59,19 +59,25 @@ export const updateUser = mutation({
 // Idempotent — safe to call repeatedly.
 
 export const syncUser = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    name: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity()
     if (!identity) throw new ConvexError({ code: 'UNAUTHENTICATED' })
 
-    // Best-effort name: display name > first+last > email prefix > fallback
+    // Prefer the name passed by the frontend Clerk SDK (always has full profile).
+    // Fall back through JWT claims, then email prefix, then a generic placeholder.
     const derivedName =
+      args.name?.trim() ||
       identity.name?.trim() ||
       [identity.givenName, identity.familyName].filter(Boolean).join(' ').trim() ||
       identity.email?.split('@')[0] ||
       'User'
 
-    const avatarUrl = (identity.pictureUrl as string | undefined) ?? undefined
+    const avatarUrl =
+      args.avatarUrl ?? (identity.pictureUrl as string | undefined) ?? undefined
 
     const existing = await ctx.db
       .query('users')
