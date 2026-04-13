@@ -12,6 +12,8 @@ interface UseBoardRoomOptions {
   onCardUpdated?: (data: { cardId: string; changes: Partial<Card> }) => void
   onCardMoved?: (data: { cardId: string; newColumnId: string; newOrderIndex: number }) => void
   onCardDeleted?: (data: { cardId: string }) => void
+  onCardDragging?: (data: { cardId: string; newColumnId: string; newOrderIndex: number }) => void
+  onCardDragCancelled?: (data: { cardId: string; originalColumnId: string; originalOrderIndex: number }) => void
   onColumnCreated?: (column: Column) => void
   onColumnUpdated?: (data: { columnId: string; title: string }) => void
   onColumnDeleted?: (data: { columnId: string }) => void
@@ -23,6 +25,8 @@ export function useBoardRoom({
   onCardUpdated,
   onCardMoved,
   onCardDeleted,
+  onCardDragging,
+  onCardDragCancelled,
   onColumnCreated,
   onColumnUpdated,
   onColumnDeleted,
@@ -51,6 +55,8 @@ export function useBoardRoom({
     const handleCardUpdated = (data: { cardId: string; changes: Partial<Card> }) => onCardUpdated?.(data)
     const handleCardMoved = (data: { cardId: string; newColumnId: string; newOrderIndex: number }) => onCardMoved?.(data)
     const handleCardDeleted = (data: { cardId: string }) => onCardDeleted?.(data)
+    const handleCardDragging = (data: { cardId: string; newColumnId: string; newOrderIndex: number }) => onCardDragging?.(data)
+    const handleCardDragCancelled = (data: { cardId: string; originalColumnId: string; originalOrderIndex: number }) => onCardDragCancelled?.(data)
     const handleColumnCreated = (payload: { column: Column }) => onColumnCreated?.(payload.column)
     const handleColumnUpdated = (data: { columnId: string; title: string }) => onColumnUpdated?.(data)
     const handleColumnDeleted = (data: { columnId: string }) => onColumnDeleted?.(data)
@@ -63,6 +69,8 @@ export function useBoardRoom({
     socket.on('CARD_UPDATED', handleCardUpdated)
     socket.on('CARD_MOVED', handleCardMoved)
     socket.on('CARD_DELETED', handleCardDeleted)
+    socket.on('CARD_DRAGGING', handleCardDragging)
+    socket.on('CARD_DRAG_CANCELLED', handleCardDragCancelled)
     socket.on('COLUMN_CREATED', handleColumnCreated)
     socket.on('COLUMN_UPDATED', handleColumnUpdated)
     socket.on('COLUMN_DELETED', handleColumnDeleted)
@@ -77,13 +85,15 @@ export function useBoardRoom({
       socket.off('CARD_UPDATED', handleCardUpdated)
       socket.off('CARD_MOVED', handleCardMoved)
       socket.off('CARD_DELETED', handleCardDeleted)
+      socket.off('CARD_DRAGGING', handleCardDragging)
+      socket.off('CARD_DRAG_CANCELLED', handleCardDragCancelled)
       socket.off('COLUMN_CREATED', handleColumnCreated)
       socket.off('COLUMN_UPDATED', handleColumnUpdated)
       socket.off('COLUMN_DELETED', handleColumnDeleted)
       socket.off('RATE_LIMITED', handleRateLimited)
       socket.off('error', handleError)
     }
-  }, [socket, boardId, onCardCreated, onCardUpdated, onCardMoved, onCardDeleted, onColumnCreated, onColumnUpdated, onColumnDeleted])
+  }, [socket, boardId, onCardCreated, onCardUpdated, onCardMoved, onCardDeleted, onCardDragging, onCardDragCancelled, onColumnCreated, onColumnUpdated, onColumnDeleted])
 
   return { connected }
 }

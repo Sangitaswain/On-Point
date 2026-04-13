@@ -73,6 +73,16 @@ export function handleConnection(socket: Socket) {
     })
   })
 
+  // ─── Drag Preview Events (no rate limit — high-frequency position updates) ──
+
+  socket.on('CARD_DRAGGING', (payload: { boardId: string }) => {
+    socket.to(`board:${payload.boardId}`).emit('CARD_DRAGGING', payload)
+  })
+
+  socket.on('CARD_DRAG_CANCELLED', (payload: { boardId: string }) => {
+    socket.to(`board:${payload.boardId}`).emit('CARD_DRAG_CANCELLED', payload)
+  })
+
   // ─── Chat Events ─────────────────────────────────────────────────
 
   socket.on('TYPING_START', ({ boardId }: { boardId: string }) => {

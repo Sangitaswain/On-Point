@@ -698,10 +698,10 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 9.6 Verify real-time sync end-to-end
 
-- [ ] Open the same board in two browser windows (different sessions)
-- [ ] Move a card in window 1 — confirm it moves in window 2 without refresh
-- [ ] Create a column in window 1 — confirm it appears in window 2
-- [ ] Delete a card in window 1 — confirm it disappears in window 2
+- [x] Open the same board in two browser windows (different sessions)
+- [x] Move a card in window 1 — confirm it moves in window 2 without refresh
+- [x] Create a column in window 1 — confirm it appears in window 2
+- [x] Delete a card in window 1 — confirm it disappears in window 2
 
 > `git commit: verify real-time board sync between multiple browser sessions`
 
