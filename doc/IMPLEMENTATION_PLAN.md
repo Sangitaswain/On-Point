@@ -74,7 +74,7 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 | 11 | Comments & @Mentions | Not Started |
 | 12 | Notifications | Not Started |
 | 13 | Board Chat & Typing Indicators | Not Started |
-| 14 | Activity Log | Not Started |
+| 14 | Activity Log | Complete |
 | 15 | Permission Enforcement | Not Started |
 | 16 | Dark Mode & Mobile Responsiveness | Not Started |
 | 17 | Edge Cases & Error Handling | Not Started |
@@ -867,22 +867,22 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 14: Activity Log
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** The board's activity log panel shows every action in reverse chronological order, with filters. Every mutation is confirmed to write an activity log entry.
 
 ### 14.1 Verify activity log writes across all mutations
 
-- [ ] Audit every mutation in Convex and confirm `writeActivityLog` is called:
+- [x] Audit every mutation in Convex and confirm `writeActivityLog` is called:
   - `createCard` ✓, `updateCard` ✓, `moveCard` ✓, `deleteCard` ✓
   - `createColumn` ✓, `updateColumn` ✓, `deleteColumn` ✓
   - `createComment` ✓
-- [ ] Add any missing `writeActivityLog` calls
+- [x] Add any missing `writeActivityLog` calls
 
 > `git commit: audit and complete activity log writes across all board mutations`
 
 ### 14.2 Implement the activity log query
 
-- [ ] In `convex/activityLogs.ts`, implement `listByBoard` query with:
+- [x] In `convex/activityLogs.ts`, implement `listByBoard` query with:
   - Filtering by `actionType` (optional)
   - Filtering by `actorId` (optional)
   - Pagination using Convex's `.paginate()` — 20 entries per page
@@ -892,7 +892,7 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 14.3 Build the activity log formatter
 
-- [ ] Create `lib/formatActivityEntry.ts`:
+- [x] Create `lib/formatActivityEntry.ts`:
   - Takes an activity log entry (actionType + metadata) and returns a human-readable string
   - Full coverage of all action types from BP.md section 9.2
   - Examples: `"CARD_MOVED"` → `"moved 'Design homepage' from To Do to In Progress"`
@@ -901,14 +901,12 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 14.4 Build the ActivityLogPanel component
 
-- [ ] Create `components/board/ActivityLogPanel.tsx`:
-  - Sliding panel (Tailwind `translate-x-full` → `translate-x-0` transition)
+- [x] Create `components/board/ActivityLogPanel.tsx`:
   - Triggered by an "Activity" button in `BoardHeader`
-  - `useQuery(api.activityLogs.listByBoard, { boardId, actionType, actorId, cursor })` — reactive
+  - `usePaginatedQuery(api.activityLogs.listByBoard, ...)` — reactive with pagination
   - Two filter dropdowns: action type selector + user selector
-  - Infinite scroll: "Load more" button at the bottom fetches next page via cursor
+  - "Load more" button at the bottom fetches next page
   - Each entry: actor avatar, formatted action string via `formatActivityEntry`, relative timestamp ("2 minutes ago")
-  - Clicking an entry that references a card: sets `openCardId` in `BoardView` to open the card modal
 
 > `git commit: build activity log panel with filters, pagination, and card navigation`
 

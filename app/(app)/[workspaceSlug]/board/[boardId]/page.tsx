@@ -10,6 +10,7 @@ import { LoadingSpinner } from '@/components/loading-spinner'
 import { BoardHeader } from '@/components/board/BoardHeader'
 import { BoardView } from '@/components/board/BoardView'
 import { ChatPanel } from '@/components/chat/ChatPanel'
+import { ActivityLogPanel } from '@/components/board/ActivityLogPanel'
 
 export default function BoardPage() {
   const params = useParams<{ workspaceSlug: string; boardId: string }>()
@@ -18,6 +19,7 @@ export default function BoardPage() {
 
   const board = useQuery(api.boards.get, { boardId })
   const [chatOpen, setChatOpen] = useState(false)
+  const [activityOpen, setActivityOpen] = useState(false)
 
   // Loading
   if (board === undefined) {
@@ -52,11 +54,18 @@ export default function BoardPage() {
         workspaceSlug={workspaceSlug}
         chatOpen={chatOpen}
         onChatToggle={() => setChatOpen((o) => !o)}
+        activityOpen={activityOpen}
+        onActivityToggle={() => setActivityOpen((o) => !o)}
       />
       <div className="flex flex-1 overflow-hidden">
         <div className="flex flex-1 flex-col overflow-hidden">
           <BoardView boardId={board._id} />
         </div>
+        <ActivityLogPanel
+          boardId={board._id}
+          open={activityOpen}
+          onClose={() => setActivityOpen(false)}
+        />
         <ChatPanel
           boardId={board._id}
           open={chatOpen}
