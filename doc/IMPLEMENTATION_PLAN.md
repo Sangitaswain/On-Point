@@ -783,38 +783,38 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 12: Notifications
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** Users receive in-app notifications in real time when assigned to a card or @mentioned. The notification bell shows an unread count badge.
 
 ### 12.1 Implement the notification backend
 
-- [ ] Create `convex/notifications.ts` — implement:
+- [x] Create `convex/notifications.ts` — implement:
   - `list` query (for current user, newest 50)
   - `getUnreadCount` query (reactive — auto-updates)
   - `markAsRead` mutation
   - `markAllAsRead` mutation
-- [ ] Implement `createNotification` helper in `convex/lib/notifications.ts` (BP.md section 10.1) — already called from `updateCard` (assignment) and `createComment` (@mention)
+- [x] Implement `createNotification` helper in `convex/lib/notifications.ts` (BP.md section 10.1) — already called from `updateCard` (assignment) and `createComment` (@mention)
 
 > `git commit: implement notification queries and mark-as-read mutations`
 
 ### 12.2 Build the NotificationBell component
 
-- [ ] Create `components/notifications/NotificationBell.tsx`:
+- [x] Create `components/notifications/NotificationBell.tsx`:
   - `useQuery(api.notifications.getUnreadCount)` — reactive badge
   - shadcn `Popover` opens `NotificationList` on click
   - Bell icon with a red badge showing the count (hidden when 0)
-- [ ] Mount `NotificationBell` in the app layout header (top-right)
+- [x] Mount `NotificationBell` in the app layout header (top-right)
 
 > `git commit: add notification bell with reactive unread count badge`
 
 ### 12.3 Build the NotificationList component
 
-- [ ] Create `components/notifications/NotificationList.tsx`:
+- [x] Create `components/notifications/NotificationList.tsx`:
   - `useQuery(api.notifications.list)` — reactive list
   - Renders list of `NotificationItem` components
   - "Mark all as read" button at the top → calls `markAllAsRead` mutation
   - Empty state: "No notifications yet"
-- [ ] Create `components/notifications/NotificationItem.tsx`:
+- [x] Create `components/notifications/NotificationItem.tsx`:
   - Icon (person for ASSIGNED, @ for MENTIONED)
   - Message: "Punit assigned you to 'Auth flow'" or "Aryan mentioned you in 'API rate limiting'"
   - Relative timestamp
@@ -827,24 +827,24 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 13: Board Chat & Typing Indicators
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** A persistent chat panel on the board lets all members send messages in real time. A typing indicator shows when someone is composing a message.
 
 ### 13.1 Implement the chat backend
 
-- [ ] Create `convex/chat.ts` — implement `sendChatMessage` mutation and `listByBoard` query (last 100 messages, includes sender name + avatar)
+- [x] Create `convex/chat.ts` — implement `sendChatMessage` mutation and `listByBoard` query (last 100 messages, includes sender name + avatar)
 
 > `git commit: add chat message mutation and board chat history query`
 
 ### 13.2 Build the chat panel components
 
-- [ ] Create `components/chat/ChatPanel.tsx`:
+- [x] Create `components/chat/ChatPanel.tsx`:
   - `useQuery(api.chat.listByBoard, { boardId })` — reactive message history
   - Scrollable message list (auto-scrolls to bottom on new message)
   - Typing indicator area above the input (renders `useTypingIndicator` state)
   - Collapsible: toggle button on the board header shows/hides the panel
-- [ ] Create `components/chat/ChatMessage.tsx` — avatar, sender name, message body, timestamp
-- [ ] Create `components/chat/ChatInput.tsx`:
+- [x] Create `components/chat/ChatMessage.tsx` — avatar, sender name, message body, timestamp
+- [x] Create `components/chat/ChatInput.tsx`:
   - Plain `<input>` (not Tiptap — chat is plain text)
   - On Enter: calls `sendChatMessage` mutation + emits `CHAT_MESSAGE_SENT` via socket
   - On first keydown: emits `TYPING_START` via socket
@@ -854,12 +854,12 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 13.3 Implement typing indicators
 
-- [ ] Create `hooks/useTypingIndicator.ts`:
+- [x] Create `hooks/useTypingIndicator.ts`:
   - Listens for `TYPING_START` and `TYPING_STOP` socket events
-  - Maintains a `Set<string>` of currently typing usernames
-  - Auto-removes a user from the set after 3 seconds (safety net in case `TYPING_STOP` is missed)
+  - Maintains a `Map<userId, userName>` of currently typing users
+  - Auto-removes a user from the map after 3 seconds (safety net in case `TYPING_STOP` is missed)
   - Returns a formatted string: "Aryan is typing..." or "Aryan and Punit are typing..."
-- [ ] Mount the output string in `ChatPanel.tsx` above the input
+- [x] Mount the output string in `ChatPanel.tsx` above the input
 
 > `git commit: add typing indicator hook with auto-timeout fallback`
 

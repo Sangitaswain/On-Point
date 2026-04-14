@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
@@ -8,6 +9,7 @@ import { Id } from '@/convex/_generated/dataModel'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { BoardHeader } from '@/components/board/BoardHeader'
 import { BoardView } from '@/components/board/BoardView'
+import { ChatPanel } from '@/components/chat/ChatPanel'
 
 export default function BoardPage() {
   const params = useParams<{ workspaceSlug: string; boardId: string }>()
@@ -15,6 +17,7 @@ export default function BoardPage() {
   const boardId = params.boardId as Id<'boards'>
 
   const board = useQuery(api.boards.get, { boardId })
+  const [chatOpen, setChatOpen] = useState(false)
 
   // Loading
   if (board === undefined) {
@@ -44,8 +47,22 @@ export default function BoardPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <BoardHeader board={board} workspaceSlug={workspaceSlug} />
-      <BoardView boardId={board._id} />
+      <BoardHeader
+        board={board}
+        workspaceSlug={workspaceSlug}
+        chatOpen={chatOpen}
+        onChatToggle={() => setChatOpen((o) => !o)}
+      />
+      <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <BoardView boardId={board._id} />
+        </div>
+        <ChatPanel
+          boardId={board._id}
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+        />
+      </div>
     </div>
   )
 }

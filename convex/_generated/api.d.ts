@@ -10,6 +10,7 @@
 
 import type * as boards from "../boards.js";
 import type * as cards from "../cards.js";
+import type * as chat from "../chat.js";
 import type * as columns from "../columns.js";
 import type * as comments from "../comments.js";
 import type * as lib_activityLog from "../lib/activityLog.js";
@@ -18,6 +19,7 @@ import type * as lib_mentions from "../lib/mentions.js";
 import type * as lib_notifications from "../lib/notifications.js";
 import type * as lib_orderIndex from "../lib/orderIndex.js";
 import type * as lib_permissions from "../lib/permissions.js";
+import type * as notifications from "../notifications.js";
 import type * as users from "../users.js";
 import type * as workspaces from "../workspaces.js";
 
@@ -30,6 +32,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   boards: typeof boards;
   cards: typeof cards;
+  chat: typeof chat;
   columns: typeof columns;
   comments: typeof comments;
   "lib/activityLog": typeof lib_activityLog;
@@ -38,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   "lib/notifications": typeof lib_notifications;
   "lib/orderIndex": typeof lib_orderIndex;
   "lib/permissions": typeof lib_permissions;
+  notifications: typeof notifications;
   users: typeof users;
   workspaces: typeof workspaces;
 }>;

@@ -6,6 +6,7 @@ import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { cn } from '@/lib/utils'
 import { UserMenu } from '@/components/layout/UserMenu'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { LayoutDashboard, Settings } from 'lucide-react'
 
 // Deterministic color for a workspace based on its name
@@ -37,7 +38,8 @@ export function AppSidebar() {
       {/* Brand */}
       <div className="flex items-center gap-2 px-4 py-4">
         <LayoutDashboard className="size-5 text-primary" />
-        <span className="text-lg font-bold text-foreground">OnPoint</span>
+        <span className="flex-1 text-lg font-bold text-foreground">OnPoint</span>
+        <NotificationBell />
       </div>
 
       {/* Workspace list */}
