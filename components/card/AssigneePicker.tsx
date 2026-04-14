@@ -74,7 +74,13 @@ export function AssigneePicker({
       <PopoverTrigger
         render={
           <Button variant="outline" size="sm" disabled={disabled} className="justify-start gap-2 w-full">
-            {currentAssignee ? (
+            {currentAssigneeId && !currentAssignee && members !== undefined ? (
+              // Assigned to someone who is no longer a member
+              <>
+                <UserCircle className="size-4 text-muted-foreground" />
+                <span className="text-muted-foreground italic">[Removed Member]</span>
+              </>
+            ) : currentAssignee ? (
               <>
                 <Avatar size="sm">
                   {currentAssignee.avatarUrl && (

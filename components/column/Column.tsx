@@ -19,6 +19,8 @@ interface ColumnProps {
     columnId: Id<'columns'>
     title: string
     assigneeId?: Id<'users'>
+    assigneeName?: string
+    assigneeAvatarUrl?: string
     dueDate?: string
     orderIndex: number
   }>

@@ -20,7 +20,18 @@ export const listByBoard = query({
       .withIndex('by_board', (q) => q.eq('boardId', args.boardId))
       .collect()
 
-    return cards
+    // Hydrate assignee names so the card list can show proper avatars
+    return Promise.all(
+      cards.map(async (card) => {
+        if (!card.assigneeId) return card
+        const assignee = await ctx.db.get(card.assigneeId)
+        return {
+          ...card,
+          assigneeName: assignee?.name ?? '[Removed Member]',
+          assigneeAvatarUrl: assignee?.avatarUrl as string | undefined,
+        }
+      })
+    )
   },
 })
 
@@ -30,7 +41,7 @@ export const get = query({
     const user = await requireUser(ctx)
 
     const card = await ctx.db.get(args.cardId)
-    if (!card) throw new ConvexError({ code: 'NOT_FOUND', message: 'Card not found' })
+    if (!card) return null
 
     await assertBoardPermission(ctx, card.boardId, user._id, 'view')
 

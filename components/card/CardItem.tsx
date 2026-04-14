@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 interface CardLabel {
   label: string
@@ -37,6 +37,8 @@ interface CardItemProps {
     columnId: Id<'columns'>
     title: string
     assigneeId?: Id<'users'>
+    assigneeName?: string
+    assigneeAvatarUrl?: string
     dueDate?: string
     labels?: CardLabel[]
   }
@@ -206,8 +208,17 @@ export function CardItem({ card, onClick, canEdit = true }: CardItemProps) {
               </span>
             )}
             {card.assigneeId && (
-              <Avatar className="ml-auto size-5">
-                <AvatarFallback className="text-[9px]">?</AvatarFallback>
+              <Avatar className="ml-auto size-5" title={card.assigneeName}>
+                {card.assigneeAvatarUrl && (
+                  <AvatarImage src={card.assigneeAvatarUrl} alt={card.assigneeName} />
+                )}
+                <AvatarFallback className="text-[9px]">
+                  {card.assigneeName
+                    ? card.assigneeName === '[Removed Member]'
+                      ? '?'
+                      : card.assigneeName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+                    : '?'}
+                </AvatarFallback>
               </Avatar>
             )}
           </div>

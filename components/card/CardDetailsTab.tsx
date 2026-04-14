@@ -49,7 +49,9 @@ export function CardDetailsTab({ card, canEdit = true }: CardDetailsTabProps) {
   const [titleValue, setTitleValue] = useState(card.title)
   const [isEditingDesc, setIsEditingDesc] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [externalUpdate, setExternalUpdate] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
+  const prevCardRef = useRef({ title: card.title, description: card.description })
 
   const updateCard = useMutation(api.cards.updateCard)
   const socket = useSocket()
@@ -58,6 +60,18 @@ export function CardDetailsTab({ card, canEdit = true }: CardDetailsTabProps) {
   useEffect(() => {
     if (!isEditingTitle) setTitleValue(card.title)
   }, [card.title, isEditingTitle])
+
+  // Detect external updates while the user is actively editing
+  useEffect(() => {
+    const prev = prevCardRef.current
+    if (
+      (isEditingTitle && prev.title !== card.title) ||
+      (isEditingDesc && prev.description !== card.description)
+    ) {
+      setExternalUpdate(true)
+    }
+    prevCardRef.current = { title: card.title, description: card.description }
+  }, [card.title, card.description, isEditingTitle, isEditingDesc])
 
   // ── Title handlers ─────────────────────────────────────────
 
@@ -153,6 +167,20 @@ export function CardDetailsTab({ card, canEdit = true }: CardDetailsTabProps) {
 
   return (
     <div className="flex flex-col gap-5">
+      {/* ── External update banner ────────────────────────── */}
+      {externalUpdate && (
+        <div className="flex items-center justify-between rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-300">
+          <span>Another user updated this card.</span>
+          <button
+            type="button"
+            onClick={() => setExternalUpdate(false)}
+            className="ml-3 underline hover:no-underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* ── Title ─────────────────────────────────────────── */}
       <div>
         {canEdit && isEditingTitle ? (

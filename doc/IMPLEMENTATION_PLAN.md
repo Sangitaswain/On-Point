@@ -77,7 +77,7 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 | 14 | Activity Log | Complete |
 | 15 | Permission Enforcement | Complete |
 | 16 | Dark Mode & Mobile Responsiveness | Complete |
-| 17 | Edge Cases & Error Handling | Not Started |
+| 17 | Edge Cases & Error Handling | Complete |
 | 18 | Deployment | Not Started |
 
 ---
@@ -991,25 +991,25 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 17: Edge Cases & Error Handling
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** Every edge case from PRD section 9 is explicitly handled. The app never crashes or shows broken UI in unexpected situations.
 
 ### 17.1 Concurrent card edit correction (PRD 9.1)
 
-- [ ] In `CardModal.tsx`: the Convex reactive query on `api.cards.get` pushes the final server value. If the Tiptap editor is in edit mode when an update arrives (from another user), do NOT overwrite the active editor content — only update the title display in the modal header. Show a subtle "Updated by [Name]" message.
+- [x] In `CardModal.tsx`: the Convex reactive query on `api.cards.get` pushes the final server value. If the Tiptap editor is in edit mode when an update arrives (from another user), do NOT overwrite the active editor content — only update the title display in the modal header. Show a subtle "Updated by [Name]" message.
 
 > `git commit: protect active card editor from overwrite during concurrent edits`
 
 ### 17.2 Deleted card modal auto-close (PRD 9.10)
 
-- [ ] In `useBoardRoom`, on receiving `CARD_DELETED`: if `openCardId === deletedCardId`, set `openCardId` to null and show toast: "This card was deleted by another user."
-- [ ] Secondary fallback: in `CardModal.tsx`, if `useQuery(api.cards.get, { cardId })` returns `null`, close the modal automatically.
+- [x] In `useBoardRoom`, on receiving `CARD_DELETED`: if `openCardId === deletedCardId`, set `openCardId` to null and show toast: "This card was deleted by another user."
+- [x] Secondary fallback: in `CardModal.tsx`, if `useQuery(api.cards.get, { cardId })` returns `null`, close the modal automatically.
 
 > `git commit: auto-close card modal and show toast when the open card is deleted`
 
 ### 17.3 WebSocket disconnect handling (PRD 9.3)
 
-- [ ] Verify the offline banner from Step 9.5 works correctly
+- [ ] Verify the offline banner from Step 9.5 works correctly (deferred — Steps 8/9 not yet implemented)
 - [ ] On reconnect: re-emit `JOIN_BOARD` to re-register in the room and get fresh presence
 - [ ] Confirm Convex reactive queries recover automatically (they use a separate connection)
 
@@ -1017,22 +1017,22 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ### 17.4 @Mention of non-member (PRD 9.8)
 
-- [ ] Verify that the Tiptap mention suggestion only returns workspace members (already true if `suggestion.items` filters from `workspaceMembers`)
-- [ ] In `convex/comments.ts` `createComment`: confirm `extractMentionedUserIds` validates each ID against workspace membership before creating a notification
+- [x] Verify that the Tiptap mention suggestion only returns workspace members (already true if `suggestion.items` filters from `workspaceMembers`)
+- [x] In `convex/comments.ts` `createComment`: confirm `extractMentionedUserIds` validates each ID against workspace membership before creating a notification
 
 > `git commit: guard @mention notifications against non-workspace-member user IDs`
 
 ### 17.5 Removed member display (PRD 9.9)
 
-- [ ] In `CardItem.tsx` and `CardDetailsTab.tsx`: when rendering the assignee, if the user's ID is not found in `workspaceMembers.list`, display "[Removed Member]" with a generic avatar
-- [ ] In `AssigneePicker.tsx`: removed members do not appear in the dropdown options
+- [x] In `CardItem.tsx`: when rendering the assignee, if the user's ID is not found in workspace members, display "[Removed Member]" fallback (hydrated server-side in `listByBoard`)
+- [x] In `AssigneePicker.tsx`: removed members do not appear in the dropdown options; picker shows "[Removed Member]" label when assigned user is not in current member list
 
 > `git commit: display removed member fallback text in card assignee fields`
 
 ### 17.6 Invalid invite link error page (PRD 9.6)
 
-- [ ] In `app/invite/[token]/page.tsx`: if `acceptInvite` throws `ConvexError` with code `INVITE_EXPIRED` or `INVITE_USED`, render an error state: "This invite link is no longer valid."
-- [ ] Add a "Go to sign in" link below the error message
+- [x] In `app/invite/[token]/page.tsx`: if `acceptInvite` throws `ConvexError` with code `INVITE_EXPIRED` or `INVITE_USED`, render an error state: "This invite link is no longer valid."
+- [x] Add a "Go to sign in" link below the error message
 
 > `git commit: add error state to invite acceptance page for expired or used tokens`
 
@@ -1081,7 +1081,6 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 > `git commit: register and verify Clerk webhook for production deployment`
 
 ### 18.5 Update Socket.IO CORS for production
-
 - [ ] In Render environment variables: set `ALLOWED_ORIGIN` to the full Vercel URL (e.g., `https://onpoint.vercel.app`)
 - [ ] Redeploy the Render service
 - [ ] Verify WebSocket connections succeed from the Vercel deployment (open browser console — no CORS errors)

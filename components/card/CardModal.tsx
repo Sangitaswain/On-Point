@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
@@ -38,6 +38,7 @@ import { LabelPicker } from './LabelPicker'
 import { DueDatePicker } from './DueDatePicker'
 import { useSocket } from '@/components/providers/SocketProvider'
 import { canEdit as checkCanEdit, canComment as checkCanComment } from '@/lib/permissions'
+import { toast } from 'sonner'
 
 interface CardModalProps {
   cardId: string | null
@@ -67,6 +68,14 @@ export function CardModal({ cardId, onClose }: CardModalProps) {
 
   const deleteCard = useMutation(api.cards.deleteCard)
   const socket = useSocket()
+
+  // Auto-close if the card was deleted by another user
+  useEffect(() => {
+    if (card === null) {
+      toast('This card was deleted by another user.')
+      onClose()
+    }
+  }, [card, onClose])
 
   const handleDelete = useCallback(async () => {
     if (!cardId || !card) return

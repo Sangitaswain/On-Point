@@ -51,8 +51,16 @@ export const createComment = mutation({
       body: args.body,
     })
 
-    // Fire MENTIONED notifications for each @mentioned workspace member
-    const mentionedIds = extractMentionedUserIds(args.body)
+    // Fire MENTIONED notifications — only for actual workspace members
+    const board = await ctx.db.get(card.boardId)
+    const wsMembers = board
+      ? await ctx.db
+          .query('workspaceMembers')
+          .withIndex('by_workspace', (q) => q.eq('workspaceId', board.workspaceId))
+          .collect()
+      : []
+    const memberIdSet = new Set(wsMembers.map((m) => m.userId as string))
+    const mentionedIds = extractMentionedUserIds(args.body).filter((id) => memberIdSet.has(id))
     for (const uid of mentionedIds) {
       await createNotification(ctx, {
         userId: uid as Id<'users'>,
