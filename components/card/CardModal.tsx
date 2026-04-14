@@ -37,6 +37,7 @@ import { AssigneePicker } from './AssigneePicker'
 import { LabelPicker } from './LabelPicker'
 import { DueDatePicker } from './DueDatePicker'
 import { useSocket } from '@/components/providers/SocketProvider'
+import { canEdit as checkCanEdit, canComment as checkCanComment } from '@/lib/permissions'
 
 interface CardModalProps {
   cardId: string | null
@@ -59,8 +60,10 @@ export function CardModal({ cardId, onClose }: CardModalProps) {
     card ? { boardId: card.boardId } : 'skip'
   )
 
+  const userCanEdit = checkCanEdit(myPermission)
+  const userCanComment = checkCanComment(myPermission)
   // Only 'edit' permission holders can delete cards
-  const canDelete = myPermission === 'edit'
+  const canDelete = userCanEdit
 
   const deleteCard = useMutation(api.cards.deleteCard)
   const socket = useSocket()
@@ -82,7 +85,7 @@ export function CardModal({ cardId, onClose }: CardModalProps) {
   return (
     <>
       <Dialog open={!!cardId} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="sm:max-w-3xl p-0 gap-0 overflow-hidden max-h-[88vh]">
+        <DialogContent className="sm:max-w-3xl p-0 gap-0 overflow-hidden max-h-[88vh] max-sm:w-full max-sm:max-h-[90vh] max-sm:rounded-t-2xl max-sm:rounded-b-none max-sm:bottom-0 max-sm:top-auto">
           <DialogHeader className="sr-only">
             <DialogTitle>{card?.title ?? 'Card'}</DialogTitle>
             <DialogDescription>Card details</DialogDescription>
@@ -121,11 +124,11 @@ export function CardModal({ cardId, onClose }: CardModalProps) {
                 )}
 
                 <div className="flex flex-col gap-6 px-6 pb-6 pt-4">
-                  <CardDetailsTab card={card} />
+                  <CardDetailsTab card={card} canEdit={userCanEdit} />
                 </div>
 
                 <div className="border-t border-border px-6 py-5">
-                  <CommentThread cardId={cardId as Id<'cards'>} boardId={card.boardId} />
+                  <CommentThread cardId={cardId as Id<'cards'>} boardId={card.boardId} canComment={userCanComment} />
                 </div>
               </div>
 
@@ -142,6 +145,7 @@ export function CardModal({ cardId, onClose }: CardModalProps) {
                       cardId={card._id}
                       currentAssigneeId={card.assigneeId}
                       boardId={card.boardId}
+                      disabled={!userCanEdit}
                     />
                   </div>
 
@@ -150,7 +154,7 @@ export function CardModal({ cardId, onClose }: CardModalProps) {
                     <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
                       Labels
                     </p>
-                    <LabelPicker cardId={card._id} currentLabels={card.labels} />
+                    <LabelPicker cardId={card._id} currentLabels={card.labels} disabled={!userCanEdit} />
                   </div>
 
                   {/* Due date */}
@@ -158,7 +162,7 @@ export function CardModal({ cardId, onClose }: CardModalProps) {
                     <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
                       Due date
                     </p>
-                    <DueDatePicker cardId={card._id} currentDueDate={card.dueDate} />
+                    <DueDatePicker cardId={card._id} currentDueDate={card.dueDate} disabled={!userCanEdit} />
                   </div>
 
                   {/* History toggle */}

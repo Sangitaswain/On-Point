@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useQuery } from 'convex/react'
+import { useTheme } from 'next-themes'
 import { api } from '@/convex/_generated/api'
 import { cn } from '@/lib/utils'
 import { UserMenu } from '@/components/layout/UserMenu'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
-import { LayoutDashboard, Settings } from 'lucide-react'
+import { LayoutDashboard, Settings, Moon, Sun } from 'lucide-react'
 
 // Deterministic color for a workspace based on its name
 const WORKSPACE_COLORS = [
@@ -32,6 +33,7 @@ function getWorkspaceColor(name: string): string {
 export function AppSidebar() {
   const pathname = usePathname()
   const workspaces = useQuery(api.workspaces.listMyWorkspaces)
+  const { theme, setTheme } = useTheme()
 
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r border-border bg-card">
@@ -40,6 +42,14 @@ export function AppSidebar() {
         <LayoutDashboard className="size-5 text-primary" />
         <span className="flex-1 text-lg font-bold text-foreground">OnPoint</span>
         <NotificationBell />
+        <button
+          type="button"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          aria-label="Toggle dark mode"
+        >
+          {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+        </button>
       </div>
 
       {/* Workspace list */}

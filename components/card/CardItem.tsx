@@ -41,6 +41,7 @@ interface CardItemProps {
     labels?: CardLabel[]
   }
   onClick: () => void
+  canEdit?: boolean
 }
 
 const LABEL_COLOR_DOT: Record<string, string> = {
@@ -63,7 +64,7 @@ function formatDueDate(dueDate: string): string {
   })
 }
 
-export function CardItem({ card, onClick }: CardItemProps) {
+export function CardItem({ card, onClick, canEdit = true }: CardItemProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -115,17 +116,19 @@ export function CardItem({ card, onClick }: CardItemProps) {
       >
         {/* Top row: drag handle + label dots + three-dot menu */}
         <div className="flex items-center justify-between mb-1.5 min-h-[16px]">
-          {/* Drag handle */}
-          <button
-            type="button"
-            {...listeners}
-            {...attributes}
-            onClick={(e) => e.stopPropagation()}
-            className="cursor-grab opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 text-muted-foreground hover:bg-muted touch-none -ml-1 mr-0.5 shrink-0"
-            aria-label="Drag card"
-          >
-            <GripVertical className="size-3" />
-          </button>
+          {/* Drag handle — only for editors */}
+          {canEdit && (
+            <button
+              type="button"
+              {...listeners}
+              {...attributes}
+              onClick={(e) => e.stopPropagation()}
+              className="cursor-grab opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 text-muted-foreground hover:bg-muted touch-none -ml-1 mr-0.5 shrink-0"
+              aria-label="Drag card"
+            >
+              <GripVertical className="size-3" />
+            </button>
+          )}
 
           {/* Label dots */}
           <div className="flex items-center gap-1 flex-1">
@@ -163,18 +166,22 @@ export function CardItem({ card, onClick }: CardItemProps) {
                   <ExternalLink className="size-3.5" />
                   Open card
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setMenuOpen(false)
-                    setDeleteOpen(true)
-                  }}
-                >
-                  <Trash2 className="size-3.5" />
-                  Delete card
-                </DropdownMenuItem>
+                {canEdit && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setMenuOpen(false)
+                        setDeleteOpen(true)
+                      }}
+                    >
+                      <Trash2 className="size-3.5" />
+                      Delete card
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

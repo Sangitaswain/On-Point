@@ -12,9 +12,10 @@ import { CommentInput } from './CommentInput'
 interface CommentThreadProps {
   cardId: Id<'cards'>
   boardId: Id<'boards'>
+  canComment?: boolean
 }
 
-export function CommentThread({ cardId, boardId }: CommentThreadProps) {
+export function CommentThread({ cardId, boardId, canComment = true }: CommentThreadProps) {
   const comments = useQuery(api.comments.listByCard, { cardId })
   const currentUser = useQuery(api.users.getMe)
   const listRef = useRef<HTMLDivElement>(null)
@@ -56,7 +57,7 @@ export function CommentThread({ cardId, boardId }: CommentThreadProps) {
         </div>
       )}
 
-      <CommentInput cardId={cardId} boardId={boardId} />
+      {canComment && <CommentInput cardId={cardId} boardId={boardId} />}
     </div>
   )
 }

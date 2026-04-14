@@ -32,6 +32,7 @@ interface CardData {
 
 interface CardDetailsTabProps {
   card: CardData
+  canEdit?: boolean
 }
 
 // Check if Tiptap JSON content is empty
@@ -43,7 +44,7 @@ function isDescriptionEmpty(content: unknown): boolean {
   return false
 }
 
-export function CardDetailsTab({ card }: CardDetailsTabProps) {
+export function CardDetailsTab({ card, canEdit = true }: CardDetailsTabProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [titleValue, setTitleValue] = useState(card.title)
   const [isEditingDesc, setIsEditingDesc] = useState(false)
@@ -154,7 +155,7 @@ export function CardDetailsTab({ card }: CardDetailsTabProps) {
     <div className="flex flex-col gap-5">
       {/* ── Title ─────────────────────────────────────────── */}
       <div>
-        {isEditingTitle ? (
+        {canEdit && isEditingTitle ? (
           <input
             ref={titleInputRef}
             type="text"
@@ -167,11 +168,11 @@ export function CardDetailsTab({ card }: CardDetailsTabProps) {
           />
         ) : (
           <h2
-            role="button"
-            tabIndex={0}
-            onClick={() => setIsEditingTitle(true)}
-            onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(true)}
-            className="cursor-text text-xl font-bold text-foreground hover:text-foreground/80 transition-colors rounded px-0.5 -mx-0.5"
+            role={canEdit ? 'button' : undefined}
+            tabIndex={canEdit ? 0 : undefined}
+            onClick={canEdit ? () => setIsEditingTitle(true) : undefined}
+            onKeyDown={canEdit ? (e) => e.key === 'Enter' && setIsEditingTitle(true) : undefined}
+            className={`text-xl font-bold text-foreground rounded px-0.5 -mx-0.5 ${canEdit ? 'cursor-text hover:text-foreground/80 transition-colors' : ''}`}
           >
             {card.title}
           </h2>
@@ -184,7 +185,7 @@ export function CardDetailsTab({ card }: CardDetailsTabProps) {
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Description
           </p>
-          {!isEditingDesc && !descEmpty && (
+          {canEdit && !isEditingDesc && !descEmpty && (
             <button
               type="button"
               onClick={handleStartEdit}
@@ -199,20 +200,22 @@ export function CardDetailsTab({ card }: CardDetailsTabProps) {
         {/* View mode */}
         {!isEditingDesc && (
           descEmpty ? (
-            <button
-              type="button"
-              onClick={handleStartEdit}
-              className="rounded-md border border-dashed border-border px-3 py-3 text-left text-sm text-muted-foreground hover:border-muted-foreground/50 hover:text-muted-foreground/80 transition-colors"
-            >
-              Add a description…
-            </button>
+            canEdit ? (
+              <button
+                type="button"
+                onClick={handleStartEdit}
+                className="rounded-md border border-dashed border-border px-3 py-3 text-left text-sm text-muted-foreground hover:border-muted-foreground/50 hover:text-muted-foreground/80 transition-colors"
+              >
+                Add a description…
+              </button>
+            ) : null
           ) : (
             <div
-              role="button"
-              tabIndex={0}
-              onClick={handleStartEdit}
-              onKeyDown={(e) => e.key === 'Enter' && handleStartEdit()}
-              className="group rounded-md px-3 py-2 cursor-text hover:bg-muted/40 transition-colors ring-1 ring-transparent hover:ring-border"
+              role={canEdit ? 'button' : undefined}
+              tabIndex={canEdit ? 0 : undefined}
+              onClick={canEdit ? handleStartEdit : undefined}
+              onKeyDown={canEdit ? (e) => e.key === 'Enter' && handleStartEdit() : undefined}
+              className={`group rounded-md px-3 py-2 ${canEdit ? 'cursor-text hover:bg-muted/40 transition-colors ring-1 ring-transparent hover:ring-border' : ''}`}
             >
               <EditorContent editor={viewEditor} />
             </div>

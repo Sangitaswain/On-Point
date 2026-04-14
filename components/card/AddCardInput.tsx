@@ -12,9 +12,10 @@ import { useSocket } from '@/components/providers/SocketProvider'
 interface AddCardInputProps {
   columnId: Id<'columns'>
   boardId: Id<'boards'>
+  canEdit?: boolean
 }
 
-export function AddCardInput({ columnId, boardId }: AddCardInputProps) {
+export function AddCardInput({ columnId, boardId, canEdit = true }: AddCardInputProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState('')
   const createCard = useMutation(api.cards.createCard)
@@ -44,6 +45,8 @@ export function AddCardInput({ columnId, boardId }: AddCardInputProps) {
     setTitle('')
     setIsOpen(false)
   }, [])
+
+  if (!canEdit) return null
 
   if (!isOpen) {
     return (

@@ -22,12 +22,14 @@ interface AssigneePickerProps {
   cardId: Id<'cards'>
   currentAssigneeId?: Id<'users'>
   boardId: Id<'boards'>
+  disabled?: boolean
 }
 
 export function AssigneePicker({
   cardId,
   currentAssigneeId,
   boardId,
+  disabled = false,
 }: AssigneePickerProps) {
   const [open, setOpen] = useState(false)
 
@@ -68,10 +70,10 @@ export function AssigneePicker({
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : setOpen}>
       <PopoverTrigger
         render={
-          <Button variant="outline" size="sm" className="justify-start gap-2 w-full">
+          <Button variant="outline" size="sm" disabled={disabled} className="justify-start gap-2 w-full">
             {currentAssignee ? (
               <>
                 <Avatar size="sm">

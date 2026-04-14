@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 interface DueDatePickerProps {
   cardId: Id<'cards'>
   currentDueDate?: string
+  disabled?: boolean
 }
 
 function formatDate(iso: string): string {
@@ -33,7 +34,7 @@ function isPastDue(iso: string): boolean {
   return due < now
 }
 
-export function DueDatePicker({ cardId, currentDueDate }: DueDatePickerProps) {
+export function DueDatePicker({ cardId, currentDueDate, disabled = false }: DueDatePickerProps) {
   const [open, setOpen] = useState(false)
   const updateCard = useMutation(api.cards.updateCard)
 
@@ -63,12 +64,13 @@ export function DueDatePicker({ cardId, currentDueDate }: DueDatePickerProps) {
   const pastDue = currentDueDate ? isPastDue(currentDueDate) : false
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : setOpen}>
       <PopoverTrigger
         render={
           <Button
             variant="outline"
             size="sm"
+            disabled={disabled}
             className={cn(
               'justify-start gap-2 w-full',
               pastDue && 'border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20'

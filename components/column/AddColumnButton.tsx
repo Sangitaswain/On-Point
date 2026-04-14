@@ -11,9 +11,10 @@ import { useSocket } from '@/components/providers/SocketProvider'
 
 interface AddColumnButtonProps {
   boardId: Id<'boards'>
+  canEdit?: boolean
 }
 
-export function AddColumnButton({ boardId }: AddColumnButtonProps) {
+export function AddColumnButton({ boardId, canEdit = true }: AddColumnButtonProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState('')
   const createColumn = useMutation(api.columns.createColumn)
@@ -44,6 +45,8 @@ export function AddColumnButton({ boardId }: AddColumnButtonProps) {
     setTitle('')
     setIsOpen(false)
   }, [])
+
+  if (!canEdit) return null
 
   if (!isOpen) {
     return (

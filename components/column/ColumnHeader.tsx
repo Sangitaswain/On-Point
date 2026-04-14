@@ -20,9 +20,10 @@ interface ColumnHeaderProps {
   dragListeners?: Record<string, any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dragAttributes?: Record<string, any>
+  canEdit?: boolean
 }
 
-export function ColumnHeader({ column, boardId, dragListeners, dragAttributes }: ColumnHeaderProps) {
+export function ColumnHeader({ column, boardId, dragListeners, dragAttributes, canEdit = true }: ColumnHeaderProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(column.title)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -67,7 +68,7 @@ export function ColumnHeader({ column, boardId, dragListeners, dragAttributes }:
           <GripVertical className="size-3.5" />
         </button>
       )}
-      {isEditing ? (
+      {canEdit && isEditing ? (
         <Input
           ref={inputRef}
           value={title}
@@ -81,23 +82,22 @@ export function ColumnHeader({ column, boardId, dragListeners, dragAttributes }:
         <button
           type="button"
           className="flex-1 truncate text-left text-sm font-semibold text-foreground hover:text-foreground/80 transition-colors"
-          onClick={() => {
-            setIsEditing(true)
-            setTitle(column.title)
-          }}
+          onClick={canEdit ? () => { setIsEditing(true); setTitle(column.title) } : undefined}
         >
           {column.title}
         </button>
       )}
-      <Button
-        variant="ghost"
-        size="icon-xs"
-        className="ml-1 shrink-0 text-muted-foreground hover:text-destructive"
-        onClick={() => setDeleteOpen(true)}
-        aria-label="Delete column"
-      >
-        <Trash2 className="size-3.5" />
-      </Button>
+      {canEdit && (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="ml-1 shrink-0 text-muted-foreground hover:text-destructive"
+          onClick={() => setDeleteOpen(true)}
+          aria-label="Delete column"
+        >
+          <Trash2 className="size-3.5" />
+        </Button>
+      )}
       <DeleteColumnDialog
         column={column}
         boardId={boardId}

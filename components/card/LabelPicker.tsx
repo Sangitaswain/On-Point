@@ -38,9 +38,10 @@ interface CardLabel {
 interface LabelPickerProps {
   cardId: Id<'cards'>
   currentLabels: CardLabel[]
+  disabled?: boolean
 }
 
-export function LabelPicker({ cardId, currentLabels }: LabelPickerProps) {
+export function LabelPicker({ cardId, currentLabels, disabled = false }: LabelPickerProps) {
   const [selected, setSelected] = useState<Set<string>>(
     () => new Set(currentLabels.map((l) => l.label))
   )
@@ -92,10 +93,10 @@ export function LabelPicker({ cardId, currentLabels }: LabelPickerProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <Popover onOpenChange={handleOpenChange}>
+      <Popover onOpenChange={disabled ? undefined : handleOpenChange}>
         <PopoverTrigger
           render={
-            <Button variant="outline" size="sm" className="justify-start gap-2 w-full">
+            <Button variant="outline" size="sm" disabled={disabled} className="justify-start gap-2 w-full">
               <Tags className="size-4 text-muted-foreground" />
               <span className="text-muted-foreground">
                 {selected.size > 0 ? `${selected.size} selected` : 'Add labels'}

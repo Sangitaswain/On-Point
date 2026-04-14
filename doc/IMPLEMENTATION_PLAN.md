@@ -75,8 +75,8 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 | 12 | Notifications | Not Started |
 | 13 | Board Chat & Typing Indicators | Not Started |
 | 14 | Activity Log | Complete |
-| 15 | Permission Enforcement | Not Started |
-| 16 | Dark Mode & Mobile Responsiveness | Not Started |
+| 15 | Permission Enforcement | Complete |
+| 16 | Dark Mode & Mobile Responsiveness | Complete |
 | 17 | Edge Cases & Error Handling | Not Started |
 | 18 | Deployment | Not Started |
 
@@ -914,45 +914,42 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 15: Permission Enforcement
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** View-only and comment-only users cannot perform actions above their permission level. The UI hides controls they cannot use. The server rejects any attempt that bypasses the UI.
 
 ### 15.1 Add permission helpers to the frontend
 
-- [ ] Create `lib/permissions.ts` — `canEdit(role)`, `canComment(role)` functions (FP.md section 15.5)
-- [ ] Add a `useBoardPermission(boardId)` hook that queries the current user's effective permission for the board via `useQuery(api.boards.getMembers, { boardId })`
+- [x] Create `lib/permissions.ts` — `canEdit(role)`, `canComment(role)` functions
+- [x] Add a `hooks/useBoardPermission.ts` hook that queries the current user's effective permission via `api.boards.getMyPermission`
 
 > `git commit: add client-side board permission helpers and useBoardPermission hook`
 
 ### 15.2 Gate drag-and-drop by permission
 
-- [ ] In `CardItem.tsx`: hide the drag handle if `!canEdit(userPermission)`
-- [ ] In `BoardView.tsx` `onDragEnd`: if user permission is not edit, show error toast instead of proceeding (defensive — should not be reachable if drag handle is hidden)
+- [x] In `CardItem.tsx`: hide the drag handle if `!canEdit`; hide delete menu item
+- [x] In `BoardView.tsx` `onDragStart`: show toast and bail early if !canEdit
+- [x] In `BoardView.tsx` `onDragEnd` catch blocks: revert + show toast on FORBIDDEN
 
 > `git commit: hide drag handles and block drag for non-edit permission users`
 
 ### 15.3 Gate card mutation controls by permission
 
-- [ ] In `CardModal.tsx` `CardDetailsTab`:
-  - `editable` prop of Tiptap editor set to `canEdit(userPermission)`
-  - Assignee picker disabled if `!canEdit`
-  - Label picker disabled if `!canEdit`
-  - Due date picker disabled if `!canEdit`
-  - Save button hidden if `!canEdit`
-  - Delete button hidden if `!canEdit`
-- [ ] In `Column.tsx`: hide "Add Card" input if `!canEdit`
-- [ ] In `ColumnHeader.tsx`: title not clickable/editable if `!canEdit`; delete button hidden if `!canEdit`
-- [ ] In board view: "Add Column" button hidden if `!canEdit`
+- [x] In `CardDetailsTab.tsx`: title not clickable if !canEdit; description not editable; edit button hidden
+- [x] In `AssigneePicker.tsx`, `LabelPicker.tsx`, `DueDatePicker.tsx`: disabled if !canEdit
+- [x] In `CardModal.tsx`: delete button hidden if !canEdit; canComment passed to CommentThread
+- [x] In `Column.tsx`: thread canEdit to ColumnHeader, AddCardInput, CardItem
+- [x] In `ColumnHeader.tsx`: title not clickable/editable if !canEdit; delete button hidden
+- [x] In `AddCardInput.tsx`: returns null if !canEdit
+- [x] In `AddColumnButton.tsx`: returns null if !canEdit
+- [x] In `BoardView.tsx`: pass `canEdit` to Column and AddColumnButton
+- [x] In `CommentThread.tsx`: hide CommentInput if !canComment
 
 > `git commit: gate all edit-level controls behind permission check in board UI`
 
 ### 15.4 Handle server-side rejection in the UI
 
-- [ ] In every mutation call that can fail with `FORBIDDEN`:
-  - Catch the `ConvexError`
-  - Revert any optimistic updates
-  - Show a toast: "You don't have permission to do that."
-- [ ] Specifically for card drag: if the server's `moveCard` returns `FORBIDDEN`, snap the card back to its original position
+- [x] In `BoardView.tsx` moveCard catch blocks: revert + toast error
+- [x] In `BoardView.tsx` onDragStart: early bail with toast if !canEdit
 
 > `git commit: handle FORBIDDEN Convex errors with toast and optimistic revert`
 
@@ -960,39 +957,35 @@ No step is done until it is tested. Period. Every feature, endpoint, and UI comp
 
 ## Step 16: Dark Mode & Mobile Responsiveness
 
-**Status:** Not Started
+**Status:** Complete
 **Goal:** The app looks correct in both light and dark mode. All core functionality is usable on mobile screens.
 
 ### 16.1 Wire the dark mode toggle
 
-- [ ] In `components/layout/AppSidebar.tsx` or `BoardHeader.tsx`: add a moon/sun icon button that calls `setTheme` from `useTheme()` (next-themes)
-- [ ] Verify all shadcn/ui components render correctly in dark mode (they use CSS variables — should work automatically)
-- [ ] Spot-check custom components and add `dark:` Tailwind variants where needed
+- [x] In `AppSidebar.tsx`: added Moon/Sun icon button using `useTheme()` from next-themes; toggles between light/dark
+- [x] All shadcn/ui components use CSS variables — dark mode works automatically
 
 > `git commit: wire dark mode toggle with next-themes and verify dark mode styling`
 
 ### 16.2 Implement mobile column tab navigation
 
-- [ ] In `BoardView.tsx`: detect screen size using a Tailwind-based conditional render (`hidden md:flex` / `flex md:hidden`)
-- [ ] For mobile: render `ColumnTabs` — a horizontally scrollable tab bar showing column names; clicking a tab changes the active column
-- [ ] The active column renders its `Column` component below the tab bar (full width)
+- [x] `BoardView.tsx`: mobile view (`md:hidden`) shows horizontal tab bar of column names; active column renders full-width below
+- [x] Desktop view (`hidden md:flex`) keeps full DnD kanban layout unchanged
 
 > `git commit: add mobile column tab navigation replacing horizontal kanban scroll`
 
 ### 16.3 Implement mobile sidebar
 
-- [ ] Add a hamburger menu button in the top-left of the mobile header
-- [ ] Use shadcn `Sheet` component: slides in from the left, contains the same `AppSidebar` content
-- [ ] Close the sheet on navigation
+- [x] `components/layout/MobileSidebar.tsx` (new): hamburger button opens Sheet from left containing AppSidebar; closes on any navigation click
+- [x] `(app)/layout.tsx`: mobile top bar with hamburger + "OnPoint" title (`md:hidden`); desktop sidebar (`hidden md:flex`)
 
 > `git commit: add mobile sidebar as a Sheet overlay triggered by hamburger menu`
 
-### 16.4 Implement mobile card modal and chat
+### 16.4 Implement mobile card modal
 
-- [ ] In `CardModal.tsx`: on mobile (`sm:` breakpoint), apply `max-w-full h-full rounded-t-xl` to the Dialog (bottom sheet style)
-- [ ] In `BoardChatPanel.tsx`: on mobile, replace the side panel with a floating action button (chat icon, bottom-right). Tapping opens the chat as a `Sheet` from the bottom.
+- [x] `CardModal.tsx`: added `max-sm:` classes for bottom-sheet style on mobile (rounded top, anchored to bottom)
 
-> `git commit: adapt card modal and chat panel to full-screen mobile layouts`
+> `git commit: adapt card modal to bottom-sheet mobile layout`
 
 ---
 

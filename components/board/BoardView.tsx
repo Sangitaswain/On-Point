@@ -30,6 +30,9 @@ import { Column } from '@/components/column/Column'
 import { AddColumnButton } from '@/components/column/AddColumnButton'
 import { CardModal } from '@/components/card/CardModal'
 import { computeOrderIndex } from '@/lib/orderIndex'
+import { useBoardPermission } from '@/hooks/useBoardPermission'
+import { canEdit as checkCanEdit } from '@/lib/permissions'
+import { toast } from 'sonner'
 
 interface BoardViewProps {
   boardId: Id<'boards'>
@@ -38,6 +41,8 @@ interface BoardViewProps {
 export function BoardView({ boardId }: BoardViewProps) {
   const columns = useQuery(api.columns.listByBoard, { boardId })
   const cards = useQuery(api.cards.listByBoard, { boardId })
+  const myPermission = useBoardPermission(boardId)
+  const userCanEdit = checkCanEdit(myPermission)
 
   const moveCard = useMutation(api.cards.moveCard)
   const reorderColumn = useMutation(api.columns.reorderColumn)
@@ -46,6 +51,8 @@ export function BoardView({ boardId }: BoardViewProps) {
 
   // Card modal state
   const [openCardId, setOpenCardId] = useState<Id<'cards'> | null>(null)
+  // Mobile: which column tab is active
+  const [mobileColumnId, setMobileColumnId] = useState<string | null>(null)
 
   // Local state for optimistic drag updates
   const [localCards, setLocalCards] = useState<NonNullable<typeof cards>>([])
@@ -217,10 +224,18 @@ export function BoardView({ boardId }: BoardViewProps) {
 
   // Store the card's original orderIndex so we can revert on cancel for observers
   const dragSourceOrderRef = useRef<number>(0)
+  // Keep a ref to the latest canEdit value so onDragEnd (memoized) can check it
+  const canEditRef = useRef(userCanEdit)
+  useEffect(() => { canEditRef.current = userCanEdit }, [userCanEdit])
 
   // Record where the drag started so onDragEnd can detect cross-column moves
   // regardless of whether its closure is stale.
   const onDragStart = useCallback(({ active }: DragStartEvent) => {
+    // Block drag if user lacks edit permission
+    if (!canEditRef.current) {
+      toast.error("You don't have permission to do that.")
+      return
+    }
     isDraggingRef.current = true
     setActiveDragId(active.id as string)
     const card = localCards.find((c) => c._id === (active.id as string))
@@ -343,6 +358,7 @@ export function BoardView({ boardId }: BoardViewProps) {
             })
           }).catch(() => {
             if (cards) setLocalCards([...cards])
+            toast.error("You don't have permission to do that.")
           })
 
           dragActiveCardIdRef.current = null
@@ -390,6 +406,7 @@ export function BoardView({ boardId }: BoardViewProps) {
           })
         }).catch(() => {
           if (cards) setLocalCards([...cards])
+          toast.error("You don't have permission to do that.")
         })
       } else if (activeType === 'column') {
         const activeId = active.id as string
@@ -466,6 +483,9 @@ export function BoardView({ boardId }: BoardViewProps) {
     )
   }
 
+  // Mobile column for display — default to first column
+  const activeMobileColumn = sortedColumns.find((c) => c._id === mobileColumnId) ?? sortedColumns[0]
+
   return (
     <>
       {!connected && socket !== null && (
@@ -473,46 +493,89 @@ export function BoardView({ boardId }: BoardViewProps) {
           You are offline. Reconnecting...
         </div>
       )}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={onDragStart}
-        onDragOver={onDragOver}
-        onDragEnd={onDragEnd}
-        onDragCancel={onDragCancel}
-      >
-        <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
-          <div className="flex flex-1 gap-4 overflow-x-auto p-4 pb-6">
-            {sortedColumns.map((column) => (
-              <Column
-                key={column._id}
-                column={column}
-                boardId={boardId}
-                cards={cardsByColumn[column._id as string] ?? []}
-                onCardClick={(cardId) => setOpenCardId(cardId)}
-              />
-            ))}
-            <AddColumnButton boardId={boardId} />
-          </div>
-        </SortableContext>
 
-        <DragOverlay>
-          {activeCard && (
-            <div className="w-72 rotate-1 rounded-lg border border-primary bg-card px-3 py-2.5 shadow-2xl opacity-95">
-              <p className="text-sm font-medium text-foreground line-clamp-2">
-                {activeCard.title}
-              </p>
+      {/* ── Mobile layout (< md) ─────────────────────────── */}
+      <div className="flex flex-col flex-1 overflow-hidden md:hidden">
+        {/* Column tabs */}
+        <div className="flex overflow-x-auto border-b bg-card px-2 py-1 gap-1 shrink-0">
+          {sortedColumns.map((col) => (
+            <button
+              key={col._id}
+              type="button"
+              onClick={() => setMobileColumnId(col._id)}
+              className={`shrink-0 rounded-md px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap ${
+                (mobileColumnId ?? sortedColumns[0]?._id) === col._id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+            >
+              {col.title}
+            </button>
+          ))}
+        </div>
+        {/* Active column — full width */}
+        {activeMobileColumn && (
+          <div className="flex-1 overflow-y-auto p-3">
+            <Column
+              column={activeMobileColumn}
+              boardId={boardId}
+              cards={cardsByColumn[activeMobileColumn._id as string] ?? []}
+              onCardClick={(cardId) => setOpenCardId(cardId)}
+              canEdit={userCanEdit}
+            />
+          </div>
+        )}
+        {userCanEdit && (
+          <div className="border-t px-3 py-2">
+            <AddColumnButton boardId={boardId} canEdit={userCanEdit} />
+          </div>
+        )}
+      </div>
+
+      {/* ── Desktop layout (≥ md) ────────────────────────── */}
+      <div className="hidden md:flex flex-1 overflow-hidden">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={onDragStart}
+          onDragOver={onDragOver}
+          onDragEnd={onDragEnd}
+          onDragCancel={onDragCancel}
+        >
+          <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
+            <div className="flex flex-1 gap-4 overflow-x-auto p-4 pb-6">
+              {sortedColumns.map((column) => (
+                <Column
+                  key={column._id}
+                  column={column}
+                  boardId={boardId}
+                  cards={cardsByColumn[column._id as string] ?? []}
+                  onCardClick={(cardId) => setOpenCardId(cardId)}
+                  canEdit={userCanEdit}
+                />
+              ))}
+              <AddColumnButton boardId={boardId} canEdit={userCanEdit} />
             </div>
-          )}
-          {!activeCard && activeColumn && (
-            <div className="w-72 rounded-xl border-2 border-primary bg-muted/80 p-2 shadow-2xl opacity-90">
-              <div className="px-2 py-1 text-sm font-semibold text-foreground">
-                {activeColumn.title}
+          </SortableContext>
+
+          <DragOverlay>
+            {activeCard && (
+              <div className="w-72 rotate-1 rounded-lg border border-primary bg-card px-3 py-2.5 shadow-2xl opacity-95">
+                <p className="text-sm font-medium text-foreground line-clamp-2">
+                  {activeCard.title}
+                </p>
               </div>
-            </div>
-          )}
-        </DragOverlay>
-      </DndContext>
+            )}
+            {!activeCard && activeColumn && (
+              <div className="w-72 rounded-xl border-2 border-primary bg-muted/80 p-2 shadow-2xl opacity-90">
+                <div className="px-2 py-1 text-sm font-semibold text-foreground">
+                  {activeColumn.title}
+                </div>
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
+      </div>
 
       {openCardId && (
         <CardModal
