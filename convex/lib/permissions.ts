@@ -67,7 +67,10 @@ export async function getEffectiveBoardPermission(
   const board = await ctx.db.get(boardId)
   if (!board) return null
 
-  // Private boards: only explicit board members
+  // Board creator always gets edit access regardless of visibility
+  if (board.createdBy === userId) return 'edit'
+
+  // Private boards: only explicit board members (creator already handled above)
   if (board.visibility === 'private') return null
 
   // Workspace boards: map workspace role to a default board permission

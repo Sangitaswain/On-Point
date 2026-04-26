@@ -17,7 +17,11 @@ export default function BoardPage() {
   const workspaceSlug = params.workspaceSlug
   const boardId = params.boardId as Id<'boards'>
 
-  const board = useQuery(api.boards.get, { boardId })
+  // Prefilter: only query if boardId looks valid (avoids FORBIDDEN on stale URLs)
+  const board = useQuery(
+    api.boards.get,
+    boardId ? { boardId } : 'skip'
+  )
   const [chatOpen, setChatOpen] = useState(false)
   const [activityOpen, setActivityOpen] = useState(false)
 
@@ -27,20 +31,20 @@ export default function BoardPage() {
       <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <LoadingSpinner />
-          <p className="text-sm text-muted-foreground">Loading board...</p>
+          <p className="text-sm" style={{ color: '#9499AE' }}>Loading board...</p>
         </div>
       </div>
     )
   }
 
-  // Error / not found — Convex throws on missing board, so null means error
+  // Not found or no access
   if (board === null) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-lg font-medium text-foreground">Board not found</p>
-          <p className="text-sm text-muted-foreground">
-            This board does not exist or you do not have access to it.
+        <div className="flex flex-col items-center gap-3 text-center">
+          <p className="text-lg font-semibold" style={{ color: '#E4E7F0' }}>Board not found</p>
+          <p className="text-sm" style={{ color: '#9499AE' }}>
+            This board does not exist or you don&apos;t have access to it.
           </p>
         </div>
       </div>
@@ -52,6 +56,7 @@ export default function BoardPage() {
       <BoardHeader
         board={board}
         workspaceSlug={workspaceSlug}
+        workspaceName={workspaceSlug.replace(/-/g, ' ')}
         chatOpen={chatOpen}
         onChatToggle={() => setChatOpen((o) => !o)}
         activityOpen={activityOpen}

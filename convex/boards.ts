@@ -114,6 +114,13 @@ export const createBoard = mutation({
       createdBy: user._id,
     })
 
+    // Add creator as explicit board member with edit access
+    await ctx.db.insert('boardMembers', {
+      boardId,
+      userId: user._id,
+      permission: 'edit',
+    })
+
     await writeActivityLog(ctx, {
       boardId,
       actorId: user._id,

@@ -1,18 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { MessageSquare, Settings, Activity, Zap } from 'lucide-react'
+import { Settings } from 'lucide-react'
 import { Id } from '@/convex/_generated/dataModel'
-import { Button } from '@/components/ui/button'
 import { PresenceBar } from '@/components/board/PresenceBar'
-import { cn } from '@/lib/utils'
 
 interface BoardHeaderProps {
-  board: {
-    _id: Id<'boards'>
-    title: string
-  }
+  board: { _id: Id<'boards'>; title: string }
   workspaceSlug: string
+  workspaceName?: string
   chatOpen: boolean
   onChatToggle: () => void
   activityOpen: boolean
@@ -20,58 +16,109 @@ interface BoardHeaderProps {
 }
 
 export function BoardHeader({
-  board,
-  workspaceSlug,
-  chatOpen,
-  onChatToggle,
-  activityOpen,
-  onActivityToggle,
+  board, workspaceSlug, workspaceName,
+  chatOpen, onChatToggle, activityOpen, onActivityToggle,
 }: BoardHeaderProps) {
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card/80 backdrop-blur-sm px-5 py-2.5 gap-4">
-      <div className="flex items-center gap-3 min-w-0">
-        <h1 className="text-base font-bold text-foreground truncate">{board.title}</h1>
-        <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
-          <span className="size-1.5 rounded-full bg-primary animate-pulse" />
-          LIVE
+    // Design: height 56px, surface bg, border-bottom, flex row with gap 12
+    <header style={{
+      height: 56,
+      padding: '0 20px',
+      background: '#13161D',
+      borderBottom: '1px solid rgba(255,255,255,0.07)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      flexShrink: 0,
+    }}>
+      {/* Breadcrumb */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {workspaceName && (
+          <>
+            <span style={{ fontSize: 14, color: '#5A5F74' }}>{workspaceName}</span>
+            <span style={{ color: '#5A5F74', fontSize: 12 }}>›</span>
+          </>
+        )}
+        <span style={{ fontSize: 14, fontWeight: 600, color: '#E4E7F0' }}>
+          {board.title}
         </span>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      {/* Right side */}
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
         <PresenceBar boardId={board._id} />
 
-        <div className="h-4 w-px bg-border mx-1" />
+        {/* Filter button */}
+        <button
+          style={{
+            padding: '6px 12px',
+            background: '#222638',
+            border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 7,
+            color: '#9499AE',
+            fontSize: 12,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          ⚙ Filter
+        </button>
 
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Toggle activity log"
+        {/* Activity button */}
+        <button
           onClick={onActivityToggle}
-          className={cn(
-            'transition-colors',
-            activityOpen && 'bg-primary/15 text-primary hover:bg-primary/20'
-          )}
+          style={{
+            padding: '6px 12px',
+            background: activityOpen ? 'oklch(62% 0.22 263 / 0.15)' : '#222638',
+            border: activityOpen ? '1px solid oklch(62% 0.22 263)' : '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 7,
+            color: activityOpen ? 'oklch(62% 0.22 263)' : '#9499AE',
+            fontSize: 12,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            transition: 'all 0.15s',
+          }}
         >
-          <Activity className="size-4" />
-        </Button>
+          ⚡ Activity
+        </button>
 
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Toggle chat"
+        {/* Chat / Invite */}
+        <button
           onClick={onChatToggle}
-          className={cn(
-            'transition-colors',
-            chatOpen && 'bg-primary/15 text-primary hover:bg-primary/20'
-          )}
+          style={{
+            padding: '6px 14px',
+            background: chatOpen ? 'oklch(62% 0.22 263 / 0.15)' : 'oklch(62% 0.22 263)',
+            border: chatOpen ? '1px solid oklch(62% 0.22 263)' : 'none',
+            borderRadius: 7,
+            color: '#fff',
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
         >
-          <MessageSquare className="size-4" />
-        </Button>
+          {chatOpen ? '✕ Chat' : '💬 Chat'}
+        </button>
 
+        {/* Settings */}
         <Link href={`/${workspaceSlug}/board/${board._id}/settings`}>
-          <Button variant="ghost" size="icon-sm" aria-label="Board settings">
-            <Settings className="size-4" />
-          </Button>
+          <button
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#5A5F74',
+              cursor: 'pointer',
+              padding: 4,
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            aria-label="Board settings"
+          >
+            <Settings size={16} />
+          </button>
         </Link>
       </div>
     </header>

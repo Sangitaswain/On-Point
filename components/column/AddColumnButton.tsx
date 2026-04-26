@@ -4,9 +4,6 @@ import { useState, useCallback } from 'react'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
-import { Plus, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { useSocket } from '@/components/providers/SocketProvider'
 
 interface AddColumnButtonProps {
@@ -29,46 +26,85 @@ export function AddColumnButton({ boardId, canEdit = true }: AddColumnButtonProp
     setIsOpen(false)
   }, [title, boardId, createColumn, socket])
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') handleSave()
-      else if (e.key === 'Escape') { setTitle(''); setIsOpen(false) }
-    },
-    [handleSave]
-  )
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleSave()
+    else if (e.key === 'Escape') { setTitle(''); setIsOpen(false) }
+  }, [handleSave])
 
   if (!canEdit) return null
 
   if (!isOpen) {
     return (
+      // Design: 240px wide, surface bg, dashed border, 12px radius
       <button
         type="button"
-        className="flex w-[272px] shrink-0 items-center justify-center gap-2 rounded-xl border border-dashed border-border text-sm text-muted-foreground p-4 transition-all hover:border-primary/40 hover:text-primary hover:bg-primary/5"
         onClick={() => setIsOpen(true)}
+        style={{
+          width: 240,
+          flexShrink: 0,
+          padding: '12px 16px',
+          background: '#13161D',
+          border: '1px dashed rgba(255,255,255,0.07)',
+          borderRadius: 12,
+          color: '#5A5F74',
+          fontSize: 13,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          transition: 'all 0.15s',
+        }}
+        onMouseEnter={e => {
+          const el = e.currentTarget
+          el.style.borderColor = 'rgba(255,255,255,0.12)'
+          el.style.color = '#9499AE'
+        }}
+        onMouseLeave={e => {
+          const el = e.currentTarget
+          el.style.borderColor = 'rgba(255,255,255,0.07)'
+          el.style.color = '#5A5F74'
+        }}
       >
-        <Plus className="size-4" />
-        Add column
+        <span style={{ fontSize: 18 }}>+</span> Add column
       </button>
     )
   }
 
   return (
-    <div className="flex w-[272px] shrink-0 flex-col gap-2 rounded-xl bg-card border border-border p-3 animate-slide-in">
-      <Input
+    <div style={{ width: 240, flexShrink: 0, background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 12 }}>
+      <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Column title…"
-        className="text-sm h-8"
         autoFocus
+        style={{
+          width: '100%',
+          background: '#222638',
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: 6,
+          padding: '7px 10px',
+          color: '#E4E7F0',
+          fontSize: 13,
+          outline: 'none',
+          fontFamily: 'inherit',
+          marginBottom: 8,
+        }}
       />
-      <div className="flex items-center gap-1.5">
-        <Button size="sm" className="flex-1 h-7 text-xs" onClick={handleSave} disabled={!title.trim()}>
+      <div style={{ display: 'flex', gap: 6 }}>
+        <button
+          onClick={handleSave}
+          disabled={!title.trim()}
+          style={{ padding: '5px 14px', background: 'oklch(62% 0.22 263)', border: 'none', borderRadius: 6, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', flex: 1 }}
+        >
           Add column
-        </Button>
-        <Button variant="ghost" size="icon-sm" className="h-7 w-7" onClick={() => { setTitle(''); setIsOpen(false) }} aria-label="Cancel">
-          <X className="size-3.5" />
-        </Button>
+        </button>
+        <button
+          onClick={() => { setTitle(''); setIsOpen(false) }}
+          style={{ padding: '5px 10px', background: '#222638', border: 'none', borderRadius: 6, color: '#9499AE', fontSize: 12, cursor: 'pointer' }}
+        >
+          Cancel
+        </button>
       </div>
     </div>
   )

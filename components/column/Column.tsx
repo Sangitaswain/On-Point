@@ -8,14 +8,15 @@ import { ColumnHeader } from '@/components/column/ColumnHeader'
 import { CardItem } from '@/components/card/CardItem'
 import { AddCardInput } from '@/components/card/AddCardInput'
 
+// Matches design: column colors per position
 const COLUMN_COLORS = [
-  '#5A5F74', // Muted grey — Backlog
-  '#6366F1', // Indigo — In Progress
-  '#F59E0B', // Amber — Review
-  '#10B981', // Green — Done
-  '#EC4899', // Pink
-  '#8B5CF6', // Violet
-  '#0891b2', // Cyan
+  '#5A5F74', // Backlog — muted
+  '#6366F1', // In Progress — indigo
+  '#F59E0B', // Review — amber
+  '#10B981', // Done — green
+  '#EC4899', // extra
+  '#8B5CF6', // extra
+  '#0891b2', // extra
 ]
 
 interface ColumnProps {
@@ -42,14 +43,7 @@ interface ColumnProps {
 }
 
 export function Column({ column, cards, boardId, onCardClick, canEdit = true, columnIndex = 0 }: ColumnProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
     data: { type: 'column' },
   })
@@ -64,38 +58,55 @@ export function Column({ column, cards, boardId, onCardClick, canEdit = true, co
   const accentColor = COLUMN_COLORS[columnIndex % COLUMN_COLORS.length]
 
   return (
+    // Design: width 292px, surface bg (#13161D), 1px border, 12px radius
     <div
       ref={setNodeRef}
-      style={style}
-      className="flex w-[272px] shrink-0 flex-col rounded-xl bg-card border border-border max-h-full overflow-hidden"
+      style={{
+        ...style,
+        width: 292,
+        flexShrink: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        background: '#13161D',
+        borderRadius: 12,
+        border: '1px solid rgba(255,255,255,0.07)',
+        maxHeight: '100%',
+      }}
     >
-      {/* Color accent strip */}
-      <div className="h-0.5 w-full rounded-t-xl" style={{ background: accentColor }} />
+      <ColumnHeader
+        column={column}
+        boardId={boardId}
+        dragListeners={canEdit ? listeners : undefined}
+        dragAttributes={canEdit ? attributes : undefined}
+        canEdit={canEdit}
+        accentColor={accentColor}
+        cardCount={cards.length}
+      />
 
-      <div className="flex flex-col gap-2 p-2 flex-1 min-h-0">
-        <ColumnHeader
-          column={column}
-          boardId={boardId}
-          dragListeners={canEdit ? listeners : undefined}
-          dragAttributes={canEdit ? attributes : undefined}
-          canEdit={canEdit}
-          accentColor={accentColor}
-          cardCount={cards.length}
-        />
+      {/* Cards area */}
+      <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '2px 10px 10px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+          }}
+        >
+          {cards.map((card) => (
+            <CardItem
+              key={card._id}
+              card={card}
+              onClick={() => onCardClick(card._id)}
+              canEdit={canEdit}
+            />
+          ))}
+        </div>
+      </SortableContext>
 
-        <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-          <div className="flex flex-col gap-1.5 overflow-y-auto min-h-0 flex-1 pr-0.5">
-            {cards.map((card) => (
-              <CardItem
-                key={card._id}
-                card={card}
-                onClick={() => onCardClick(card._id)}
-                canEdit={canEdit}
-              />
-            ))}
-          </div>
-        </SortableContext>
-
+      <div style={{ padding: '0 10px 10px' }}>
         <AddCardInput columnId={column._id} boardId={boardId} canEdit={canEdit} />
       </div>
     </div>

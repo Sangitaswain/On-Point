@@ -4,9 +4,6 @@ import { useState, useCallback } from 'react'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
-import { Plus, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { useSocket } from '@/components/providers/SocketProvider'
 
 interface AddCardInputProps {
@@ -29,46 +26,100 @@ export function AddCardInput({ columnId, boardId, canEdit = true }: AddCardInput
     setTitle('')
   }, [title, columnId, boardId, createCard, socket])
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') handleSave()
-      else if (e.key === 'Escape') { setTitle(''); setIsOpen(false) }
-    },
-    [handleSave]
-  )
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSave() }
+    else if (e.key === 'Escape') { setTitle(''); setIsOpen(false) }
+  }, [handleSave])
 
   if (!canEdit) return null
 
   if (!isOpen) {
     return (
+      // Design: dashed border button, hover → accent color
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors group"
+        style={{
+          width: '100%',
+          padding: '8px',
+          background: 'none',
+          border: '1px dashed rgba(255,255,255,0.07)',
+          borderRadius: 6,
+          color: '#5A5F74',
+          fontSize: 12,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          transition: 'border-color 0.15s, color 0.15s',
+        }}
+        onMouseEnter={e => {
+          const el = e.currentTarget
+          el.style.borderColor = 'oklch(62% 0.22 263)'
+          el.style.color = 'oklch(62% 0.22 263)'
+        }}
+        onMouseLeave={e => {
+          const el = e.currentTarget
+          el.style.borderColor = 'rgba(255,255,255,0.07)'
+          el.style.color = '#5A5F74'
+        }}
       >
-        <Plus className="size-3.5 group-hover:text-primary transition-colors" />
-        Add card
+        <span style={{ fontSize: 16, lineHeight: 1 }}>+</span> Add card
       </button>
     )
   }
 
   return (
-    <div className="flex flex-col gap-1.5 animate-slide-in">
-      <Input
+    <div style={{ background: '#1A1E2A', border: '1px solid oklch(62% 0.22 263)', borderRadius: 6, padding: 10 }}>
+      <textarea
+        autoFocus
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Card title…"
-        className="h-8 text-xs bg-muted/50 border-border/80"
-        autoFocus
+        style={{
+          width: '100%',
+          background: 'none',
+          border: 'none',
+          resize: 'none',
+          color: '#E4E7F0',
+          fontSize: 13,
+          fontFamily: 'inherit',
+          outline: 'none',
+          minHeight: 60,
+        }}
       />
-      <div className="flex items-center gap-1">
-        <Button size="sm" className="h-7 text-xs flex-1" onClick={handleSave} disabled={!title.trim()}>
+      <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+        <button
+          onClick={handleSave}
+          style={{
+            padding: '5px 12px',
+            background: 'oklch(62% 0.22 263)',
+            border: 'none',
+            borderRadius: 5,
+            color: '#fff',
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
           Add
-        </Button>
-        <Button variant="ghost" size="icon-sm" className="h-7 w-7" onClick={() => { setTitle(''); setIsOpen(false) }} aria-label="Cancel">
-          <X className="size-3.5" />
-        </Button>
+        </button>
+        <button
+          onClick={() => { setTitle(''); setIsOpen(false) }}
+          style={{
+            padding: '5px 10px',
+            background: '#222638',
+            border: 'none',
+            borderRadius: 5,
+            color: '#9499AE',
+            fontSize: 12,
+            cursor: 'pointer',
+          }}
+        >
+          Cancel
+        </button>
       </div>
     </div>
   )

@@ -543,7 +543,7 @@ export function BoardView({ boardId }: BoardViewProps) {
           onDragCancel={onDragCancel}
         >
           <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
-            <div className="flex flex-1 gap-3 overflow-x-auto p-4 pb-6">
+            <div className="flex flex-1 overflow-x-auto" style={{ padding: '20px 24px', gap: 14, display: 'flex', alignItems: 'flex-start' }}>
               {sortedColumns.map((column, index) => (
                 <Column
                   key={column._id}
