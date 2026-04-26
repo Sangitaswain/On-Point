@@ -31,20 +31,11 @@ export function AddColumnButton({ boardId, canEdit = true }: AddColumnButtonProp
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleSave()
-      } else if (e.key === 'Escape') {
-        setTitle('')
-        setIsOpen(false)
-      }
+      if (e.key === 'Enter') handleSave()
+      else if (e.key === 'Escape') { setTitle(''); setIsOpen(false) }
     },
     [handleSave]
   )
-
-  const handleCancel = useCallback(() => {
-    setTitle('')
-    setIsOpen(false)
-  }, [])
 
   if (!canEdit) return null
 
@@ -52,7 +43,7 @@ export function AddColumnButton({ boardId, canEdit = true }: AddColumnButtonProp
     return (
       <button
         type="button"
-        className="flex w-72 shrink-0 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 p-4 text-sm text-muted-foreground transition hover:border-muted-foreground/50 hover:text-foreground"
+        className="flex w-[272px] shrink-0 items-center justify-center gap-2 rounded-xl border border-dashed border-border text-sm text-muted-foreground p-4 transition-all hover:border-primary/40 hover:text-primary hover:bg-primary/5"
         onClick={() => setIsOpen(true)}
       >
         <Plus className="size-4" />
@@ -62,21 +53,21 @@ export function AddColumnButton({ boardId, canEdit = true }: AddColumnButtonProp
   }
 
   return (
-    <div className="flex w-72 shrink-0 flex-col gap-2 rounded-xl bg-muted/50 p-2">
+    <div className="flex w-[272px] shrink-0 flex-col gap-2 rounded-xl bg-card border border-border p-3 animate-slide-in">
       <Input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Column title..."
-        className="text-sm"
+        placeholder="Column title…"
+        className="text-sm h-8"
         autoFocus
       />
-      <div className="flex items-center gap-1">
-        <Button size="sm" onClick={handleSave} disabled={!title.trim()}>
+      <div className="flex items-center gap-1.5">
+        <Button size="sm" className="flex-1 h-7 text-xs" onClick={handleSave} disabled={!title.trim()}>
           Add column
         </Button>
-        <Button variant="ghost" size="icon-sm" onClick={handleCancel} aria-label="Cancel">
-          <X className="size-4" />
+        <Button variant="ghost" size="icon-sm" className="h-7 w-7" onClick={() => { setTitle(''); setIsOpen(false) }} aria-label="Cancel">
+          <X className="size-3.5" />
         </Button>
       </div>
     </div>

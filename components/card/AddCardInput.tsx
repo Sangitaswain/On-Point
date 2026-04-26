@@ -31,53 +31,43 @@ export function AddCardInput({ columnId, boardId, canEdit = true }: AddCardInput
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleSave()
-      } else if (e.key === 'Escape') {
-        setTitle('')
-        setIsOpen(false)
-      }
+      if (e.key === 'Enter') handleSave()
+      else if (e.key === 'Escape') { setTitle(''); setIsOpen(false) }
     },
     [handleSave]
   )
-
-  const handleCancel = useCallback(() => {
-    setTitle('')
-    setIsOpen(false)
-  }, [])
 
   if (!canEdit) return null
 
   if (!isOpen) {
     return (
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start text-muted-foreground"
+      <button
+        type="button"
         onClick={() => setIsOpen(true)}
+        className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors group"
       >
-        <Plus className="size-4 mr-1" />
+        <Plus className="size-3.5 group-hover:text-primary transition-colors" />
         Add card
-      </Button>
+      </button>
     )
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5 animate-slide-in">
       <Input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Card title..."
-        className="text-sm"
+        placeholder="Card title…"
+        className="h-8 text-xs bg-muted/50 border-border/80"
         autoFocus
       />
       <div className="flex items-center gap-1">
-        <Button size="sm" onClick={handleSave} disabled={!title.trim()}>
+        <Button size="sm" className="h-7 text-xs flex-1" onClick={handleSave} disabled={!title.trim()}>
           Add
         </Button>
-        <Button variant="ghost" size="icon-sm" onClick={handleCancel} aria-label="Cancel">
-          <X className="size-4" />
+        <Button variant="ghost" size="icon-sm" className="h-7 w-7" onClick={() => { setTitle(''); setIsOpen(false) }} aria-label="Cancel">
+          <X className="size-3.5" />
         </Button>
       </div>
     </div>

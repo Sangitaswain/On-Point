@@ -6,7 +6,7 @@ import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, MoreHorizontal, Calendar, Trash2, ExternalLink } from 'lucide-react'
+import { GripVertical, MoreHorizontal, Calendar, Trash2, ExternalLink, MessageSquare, Triangle, Diamond, ChevronDown } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { cn } from '@/lib/utils'
 
 interface CardLabel {
   label: string
@@ -46,13 +47,13 @@ interface CardItemProps {
   canEdit?: boolean
 }
 
-const LABEL_COLOR_DOT: Record<string, string> = {
-  red: 'bg-red-500',
-  blue: 'bg-blue-500',
-  orange: 'bg-orange-500',
-  purple: 'bg-purple-500',
-  gray: 'bg-gray-400',
-  green: 'bg-green-500',
+const LABEL_COLORS: Record<string, string> = {
+  red: '#EF4444',
+  blue: '#6366F1',
+  orange: '#F59E0B',
+  purple: '#8B5CF6',
+  gray: '#5A5F74',
+  green: '#10B981',
 }
 
 function isDueDatePast(dueDate: string): boolean {
@@ -60,10 +61,7 @@ function isDueDatePast(dueDate: string): boolean {
 }
 
 function formatDueDate(dueDate: string): string {
-  return new Date(dueDate).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  })
+  return new Date(dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
 export function CardItem({ card, onClick, canEdit = true }: CardItemProps) {
@@ -86,7 +84,7 @@ export function CardItem({ card, onClick, canEdit = true }: CardItemProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.4 : 1,
+    opacity: isDragging ? 0.35 : 1,
   }
 
   const deleteCard = useMutation(api.cards.deleteCard)
@@ -114,41 +112,44 @@ export function CardItem({ card, onClick, canEdit = true }: CardItemProps) {
         tabIndex={0}
         onClick={onClick}
         onKeyDown={(e) => e.key === 'Enter' && onClick()}
-        className="group relative w-full rounded-lg border border-border bg-card px-3 py-2.5 text-left shadow-sm cursor-pointer hover:border-primary/40 hover:shadow-md transition-all"
+        className="group relative w-full rounded-lg border border-border bg-card/80 px-3 py-2.5 text-left cursor-pointer hover:border-border/80 hover:bg-card hover:shadow-lg hover:shadow-black/20 hover:-translate-y-px transition-all duration-150 animate-slide-in"
       >
-        {/* Top row: drag handle + label dots + three-dot menu */}
-        <div className="flex items-center justify-between mb-1.5 min-h-[16px]">
-          {/* Drag handle — only for editors */}
+        {/* Label strips */}
+        {labels.length > 0 && (
+          <div className="flex items-center gap-1 mb-2">
+            {labels.slice(0, 5).map((l, i) => (
+              <span
+                key={i}
+                title={l.label}
+                className="h-1 w-6 rounded-full inline-block"
+                style={{ background: LABEL_COLORS[l.color] ?? '#5A5F74' }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Title row */}
+        <div className="flex items-start gap-1.5">
           {canEdit && (
             <button
               type="button"
               {...listeners}
               {...attributes}
               onClick={(e) => e.stopPropagation()}
-              className="cursor-grab opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 text-muted-foreground hover:bg-muted touch-none -ml-1 mr-0.5 shrink-0"
+              className="mt-0.5 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 text-muted-foreground hover:bg-muted touch-none shrink-0 -ml-1"
               aria-label="Drag card"
             >
               <GripVertical className="size-3" />
             </button>
           )}
-
-          {/* Label dots */}
-          <div className="flex items-center gap-1 flex-1">
-            {labels.slice(0, 5).map((l, i) => (
-              <span
-                key={i}
-                title={l.label}
-                className={`inline-block size-2 rounded-full ${LABEL_COLOR_DOT[l.color] ?? 'bg-muted-foreground'}`}
-              />
-            ))}
-          </div>
-
-          {/* Three-dot menu */}
+          <p className="flex-1 text-[13px] font-medium text-foreground line-clamp-2 leading-snug">
+            {card.title}
+          </p>
           <div
             role="none"
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
           >
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger
@@ -158,13 +159,7 @@ export function CardItem({ card, onClick, canEdit = true }: CardItemProps) {
                 <MoreHorizontal className="size-3.5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setMenuOpen(false)
-                    onClick()
-                  }}
-                >
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onClick() }}>
                   <ExternalLink className="size-3.5" />
                   Open card
                 </DropdownMenuItem>
@@ -173,11 +168,7 @@ export function CardItem({ card, onClick, canEdit = true }: CardItemProps) {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setMenuOpen(false)
-                        setDeleteOpen(true)
-                      }}
+                      onClick={(e) => { e.stopPropagation(); setMenuOpen(false); setDeleteOpen(true) }}
                     >
                       <Trash2 className="size-3.5" />
                       Delete card
@@ -189,30 +180,28 @@ export function CardItem({ card, onClick, canEdit = true }: CardItemProps) {
           </div>
         </div>
 
-        {/* Card title */}
-        <p className="text-sm font-medium text-foreground line-clamp-2 leading-snug">
-          {card.title}
-        </p>
-
-        {/* Footer: due date + assignee avatar */}
+        {/* Footer */}
         {(hasDueDate || card.assigneeId) && (
-          <div className="mt-2 flex items-center gap-2">
+          <div className="mt-2.5 flex items-center gap-2">
             {hasDueDate && (
               <span
-                className={`inline-flex items-center gap-1 text-[11px] font-medium ${
-                  isPast ? 'text-destructive' : 'text-muted-foreground'
-                }`}
+                className={cn(
+                  'inline-flex items-center gap-1 text-[11px] font-medium rounded px-1.5 py-0.5',
+                  isPast
+                    ? 'bg-destructive/15 text-destructive'
+                    : 'text-muted-foreground'
+                )}
               >
-                <Calendar className="size-3 shrink-0" />
+                <Calendar className="size-2.5 shrink-0" />
                 {formatDueDate(card.dueDate!)}
               </span>
             )}
             {card.assigneeId && (
-              <Avatar className="ml-auto size-5" title={card.assigneeName}>
+              <Avatar className="ml-auto size-5 border border-border" title={card.assigneeName}>
                 {card.assigneeAvatarUrl && (
                   <AvatarImage src={card.assigneeAvatarUrl} alt={card.assigneeName} />
                 )}
-                <AvatarFallback className="text-[9px]">
+                <AvatarFallback className="text-[8px] bg-primary/20 text-primary font-semibold">
                   {card.assigneeName
                     ? card.assigneeName === '[Removed Member]'
                       ? '?'
@@ -225,23 +214,17 @@ export function CardItem({ card, onClick, canEdit = true }: CardItemProps) {
         )}
       </div>
 
-      {/* Delete confirmation dialog */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete &ldquo;{card.title}&rdquo;?</AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently deletes the card and all its data. This cannot be
-              undone.
+              This permanently deletes the card and all its data. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
+            <AlertDialogAction variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>

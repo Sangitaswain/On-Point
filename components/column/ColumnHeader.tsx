@@ -21,9 +21,19 @@ interface ColumnHeaderProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dragAttributes?: Record<string, any>
   canEdit?: boolean
+  accentColor?: string
+  cardCount?: number
 }
 
-export function ColumnHeader({ column, boardId, dragListeners, dragAttributes, canEdit = true }: ColumnHeaderProps) {
+export function ColumnHeader({
+  column,
+  boardId,
+  dragListeners,
+  dragAttributes,
+  canEdit = true,
+  accentColor = '#6366F1',
+  cardCount = 0,
+}: ColumnHeaderProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(column.title)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -45,29 +55,26 @@ export function ColumnHeader({ column, boardId, dragListeners, dragAttributes, c
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleSave()
-      } else if (e.key === 'Escape') {
-        setTitle(column.title)
-        setIsEditing(false)
-      }
+      if (e.key === 'Enter') handleSave()
+      else if (e.key === 'Escape') { setTitle(column.title); setIsEditing(false) }
     },
     [handleSave, column.title]
   )
 
   return (
-    <div className="flex items-center justify-between px-1 py-1">
+    <div className="flex items-center gap-1.5 px-1 py-0.5">
       {dragListeners && (
         <button
           type="button"
           {...dragListeners}
           {...dragAttributes}
-          className="cursor-grab shrink-0 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors touch-none"
+          className="cursor-grab shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors touch-none opacity-0 group-hover:opacity-100"
           aria-label="Drag column"
         >
           <GripVertical className="size-3.5" />
         </button>
       )}
+
       {canEdit && isEditing ? (
         <Input
           ref={inputRef}
@@ -75,29 +82,39 @@ export function ColumnHeader({ column, boardId, dragListeners, dragAttributes, c
           onChange={(e) => setTitle(e.target.value)}
           onBlur={handleSave}
           onKeyDown={handleKeyDown}
-          className="h-7 text-sm font-semibold"
+          className="h-6 text-xs font-semibold flex-1"
           autoFocus
         />
       ) : (
         <button
           type="button"
-          className="flex-1 truncate text-left text-sm font-semibold text-foreground hover:text-foreground/80 transition-colors"
+          className="flex-1 truncate text-left text-xs font-semibold text-foreground hover:text-foreground/80 transition-colors"
           onClick={canEdit ? () => { setIsEditing(true); setTitle(column.title) } : undefined}
         >
           {column.title}
         </button>
       )}
+
+      {/* Card count badge */}
+      <span
+        className="shrink-0 flex items-center justify-center rounded-full text-[10px] font-bold w-4 h-4 text-white"
+        style={{ background: accentColor + 'cc' }}
+      >
+        {cardCount}
+      </span>
+
       {canEdit && (
         <Button
           variant="ghost"
           size="icon-xs"
-          className="ml-1 shrink-0 text-muted-foreground hover:text-destructive"
+          className="ml-0.5 shrink-0 text-muted-foreground hover:text-destructive"
           onClick={() => setDeleteOpen(true)}
           aria-label="Delete column"
         >
-          <Trash2 className="size-3.5" />
+          <Trash2 className="size-3" />
         </Button>
       )}
+
       <DeleteColumnDialog
         column={column}
         boardId={boardId}

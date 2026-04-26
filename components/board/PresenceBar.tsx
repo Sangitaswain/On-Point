@@ -32,9 +32,14 @@ export function PresenceBar({ boardId }: PresenceBarProps) {
       {visible.map((user) => (
         <Tooltip key={user.userId}>
           <TooltipTrigger>
-            <Avatar className="size-8 border-2 border-background transition-opacity duration-300 opacity-100 cursor-default">
-              <AvatarFallback className="text-xs">{initials(user.userName)}</AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="size-7 border-2 border-card cursor-default transition-transform hover:-translate-y-0.5">
+                <AvatarFallback className="text-[10px] font-semibold bg-primary/20 text-primary">
+                  {initials(user.userName)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="absolute -bottom-0.5 -right-0.5 size-2 rounded-full bg-green-500 border border-card" />
+            </div>
           </TooltipTrigger>
           <TooltipContent side="bottom">
             <p>{user.userName}</p>
@@ -42,7 +47,7 @@ export function PresenceBar({ boardId }: PresenceBarProps) {
         </Tooltip>
       ))}
       {overflow > 0 && (
-        <div className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium text-muted-foreground">
+        <div className="flex size-7 items-center justify-center rounded-full border-2 border-card bg-muted text-[10px] font-semibold text-muted-foreground">
           +{overflow}
         </div>
       )}

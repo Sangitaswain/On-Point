@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnPoint — Georgia Typography Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, 'Times New Roman', serif; background: #0f0f13; color: #e2e8f0; min-height: 100vh; padding: 28px 24px; }
+
+  .page-title { font-family: Georgia, serif; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .page-sub { font-family: Georgia, serif; font-size: 14px; color: #94a3b8; margin-bottom: 28px; font-style: italic; }
+
+  .preview-label { font-family: Georgia, serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #7c3aed; margin-bottom: 14px; }
+
+  /* Full hybrid mockup with Georgia */
+  .hybrid-wrap { display: flex; height: 440px; border-radius: 16px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.07); }
+
+  .hybrid-sidebar {
+    width: 200px; background: #1a1d2e; display: flex; flex-direction: column;
+    padding: 16px 10px; gap: 2px; flex-shrink: 0;
+  }
+  .hybrid-logo { color: #fff; font-family: Georgia, serif; font-size: 18px; font-weight: 700; padding: 4px 8px 14px; letter-spacing: -0.5px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
+  .hybrid-logo span { color: #7c3aed; }
+  .hybrid-section { color: rgba(255,255,255,0.35); font-family: Georgia, serif; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 8px 4px; }
+  .hybrid-ws-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 7px; cursor: pointer; }
+  .hybrid-ws-item.active { background: rgba(124,58,237,0.18); }
+  .hybrid-ws-item:hover:not(.active) { background: rgba(255,255,255,0.05); }
+  .hybrid-ws-dot { width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0; font-family: Georgia, serif; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: #fff; }
+  .hybrid-ws-name { font-family: Georgia, serif; font-size: 13px; color: rgba(255,255,255,0.65); }
+  .hybrid-ws-item.active .hybrid-ws-name { color: #fff; font-weight: 700; }
+  .hybrid-board-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 7px; cursor: pointer; }
+  .hybrid-board-item.active { background: rgba(124,58,237,0.18); }
+  .hybrid-board-name { font-family: Georgia, serif; font-size: 12px; color: rgba(255,255,255,0.6); }
+  .hybrid-board-item.active .hybrid-board-name { color: #fff; font-weight: 700; }
+  .hybrid-board-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .hybrid-user-area { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; display: flex; align-items: center; gap: 8px; padding: 10px 8px 0; }
+  .hybrid-user-avatar { width: 28px; height: 28px; border-radius: 50%; background: #7c3aed; font-family: Georgia, serif; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .hybrid-user-name { font-family: Georgia, serif; font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 600; }
+  .hybrid-user-status { font-family: Georgia, serif; font-size: 10px; color: rgba(255,255,255,0.4); font-style: italic; }
+
+  .hybrid-main { flex: 1; display: flex; flex-direction: column; background: #f0f4f8; min-width: 0; }
+  .hybrid-header {
+    height: 52px; background: #fff; border-bottom: 1px solid #e2e8f0;
+    display: flex; align-items: center; padding: 0 18px; gap: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06); flex-shrink: 0;
+  }
+  .hybrid-board-title { font-family: Georgia, serif; font-size: 16px; font-weight: 700; color: #0f172a; font-style: italic; }
+  .hybrid-live-badge { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff; font-family: Georgia, serif; font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.05em; }
+  .hybrid-header-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .hybrid-presence { display: flex; }
+  .hybrid-avatar { width: 26px; height: 26px; border-radius: 50%; font-family: Georgia, serif; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: #fff; border: 2px solid #fff; margin-left: -6px; }
+  .hybrid-avatar:first-child { margin-left: 0; }
+  .hybrid-icon-btn { width: 28px; height: 28px; border-radius: 7px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; border: 1px solid #e2e8f0; }
+
+  .hybrid-canvas { flex: 1; display: flex; gap: 12px; padding: 14px 14px 10px; overflow: hidden; }
+  .hybrid-col { width: 180px; flex-shrink: 0; background: #e8edf5; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .hybrid-col-title {
+    font-family: Georgia, serif; font-size: 12px; font-weight: 700; color: #374151;
+    padding: 2px 2px 4px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .hybrid-col-count { font-family: Georgia, serif; font-size: 10px; color: #9ca3af; font-weight: 600; background: #d1d5db; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .hybrid-card {
+    background: #fff; border-radius: 9px; padding: 9px 10px;
+    font-family: Georgia, serif; font-size: 12px; color: #1e293b;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07); line-height: 1.4;
+  }
+  .hybrid-card-labels { display: flex; gap: 4px; margin-bottom: 5px; }
+  .hybrid-label { height: 4px; border-radius: 3px; width: 24px; }
+  .hybrid-card-footer { display: flex; align-items: center; margin-top: 6px; gap: 6px; }
+  .hybrid-card-date { font-family: Georgia, serif; font-size: 10px; color: #6b7280; font-style: italic; }
+  .hybrid-card-date.overdue { color: #dc2626; }
+  .hybrid-card-avatar-sm { width: 16px; height: 16px; border-radius: 50%; font-family: Georgia, serif; font-size: 6px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: #fff; margin-left: auto; }
+</style>
+</head>
+<body>
+
+<div class="page-title">OnPoint Signature — Georgia Typography</div>
+<div class="page-sub">Full mockup with Georgia serif applied across all text layers</div>
+
+<div class="preview-label">Full Layout Preview</div>
+
+<div class="hybrid-wrap">
+  <!-- Sidebar -->
+  <div class="hybrid-sidebar">
+    <div class="hybrid-logo">On<span>Point</span></div>
+
+    <div class="hybrid-section">Workspaces</div>
+    <div class="hybrid-ws-item active">
+      <div class="hybrid-ws-dot" style="background:#7c3aed">O</div>
+      <div>
+        <div class="hybrid-ws-name">OnPoint Co.</div>
+      </div>
+    </div>
+    <div class="hybrid-ws-item">
+      <div class="hybrid-ws-dot" style="background:#0891b2">D</div>
+      <div class="hybrid-ws-name">Design Studio</div>
+    </div>
+    <div class="hybrid-ws-item">
+      <div class="hybrid-ws-dot" style="background:#059669">M</div>
+      <div class="hybrid-ws-name">Mobile Team</div>
+    </div>
+
+    <div class="hybrid-section" style="margin-top:8px">Boards</div>
+    <div class="hybrid-board-item active">
+      <div class="hybrid-board-dot" style="background:#7c3aed"></div>
+      <div class="hybrid-board-name">Sprint Board</div>
+    </div>
+    <div class="hybrid-board-item">
+      <div class="hybrid-board-dot" style="background:#0891b2"></div>
+      <div class="hybrid-board-name">Design Reviews</div>
+    </div>
+    <div class="hybrid-board-item">
+      <div class="hybrid-board-dot" style="background:#f59e0b"></div>
+      <div class="hybrid-board-name">Marketing Q2</div>
+    </div>
+
+    <div class="hybrid-user-area" style="margin-top:auto;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px">
+      <div class="hybrid-user-avatar">S</div>
+      <div>
+        <div class="hybrid-user-name">Sangita S.</div>
+        <div class="hybrid-user-status">● Active</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="hybrid-main">
+    <div class="hybrid-header">
+      <div class="hybrid-board-title">Sprint Board</div>
+      <div class="hybrid-live-badge">● LIVE</div>
+      <div class="hybrid-header-actions">
+        <div class="hybrid-presence">
+          <div class="hybrid-avatar" style="background:#7c3aed">S</div>
+          <div class="hybrid-avatar" style="background:#0891b2">M</div>
+          <div class="hybrid-avatar" style="background:#059669">A</div>
+        </div>
+        <div class="hybrid-icon-btn">💬</div>
+        <div class="hybrid-icon-btn">⚡</div>
+        <div class="hybrid-icon-btn">⚙</div>
+      </div>
+    </div>
+
+    <div class="hybrid-canvas">
+      <!-- To Do -->
+      <div class="hybrid-col">
+        <div class="hybrid-col-title">To Do <div class="hybrid-col-count">3</div></div>
+        <div class="hybrid-card">
+          <div class="hybrid-card-labels">
+            <div class="hybrid-label" style="background:#7c3aed"></div>
+            <div class="hybrid-label" style="background:#0891b2"></div>
+          </div>
+          Design homepage hero section
+          <div class="hybrid-card-footer">
+            <div class="hybrid-card-date">Apr 30</div>
+            <div class="hybrid-card-avatar-sm" style="background:#7c3aed">S</div>
+          </div>
+        </div>
+        <div class="hybrid-card">
+          Fix auth redirect bug
+          <div class="hybrid-card-footer">
+            <div class="hybrid-card-date overdue">Apr 24 !</div>
+            <div class="hybrid-card-avatar-sm" style="background:#e11d48">A</div>
+          </div>
+        </div>
+        <div class="hybrid-card">Write API documentation</div>
+      </div>
+
+      <!-- In Progress -->
+      <div class="hybrid-col">
+        <div class="hybrid-col-title">In Progress <div class="hybrid-col-count">2</div></div>
+        <div class="hybrid-card">
+          <div class="hybrid-card-labels">
+            <div class="hybrid-label" style="background:#f59e0b"></div>
+          </div>
+          Build card modal UI
+          <div class="hybrid-card-footer">
+            <div class="hybrid-card-date">May 2</div>
+            <div class="hybrid-card-avatar-sm" style="background:#0891b2">M</div>
+          </div>
+        </div>
+        <div class="hybrid-card">Setup CI/CD pipeline</div>
+      </div>
+
+      <!-- Review -->
+      <div class="hybrid-col">
+        <div class="hybrid-col-title">Review <div class="hybrid-col-count">1</div></div>
+        <div class="hybrid-card">
+          Socket integration tests
+          <div class="hybrid-card-footer">
+            <div class="hybrid-card-avatar-sm" style="background:#059669">M</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Done -->
+      <div class="hybrid-col">
+        <div class="hybrid-col-title">Done <div class="hybrid-col-count">2</div></div>
+        <div class="hybrid-card">
+          <div class="hybrid-card-labels">
+            <div class="hybrid-label" style="background:#059669"></div>
+          </div>
+          Convex schema setup
+        </div>
+        <div class="hybrid-card">Clerk auth flow</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

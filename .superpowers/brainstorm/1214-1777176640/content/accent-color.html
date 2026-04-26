@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnPoint — Accent Color</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f13; color: #e2e8f0; min-height: 100vh; padding: 28px 24px; }
+
+  .page-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: #94a3b8; margin-bottom: 28px; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+  .option-card {
+    border-radius: 14px; overflow: hidden; border: 2px solid rgba(255,255,255,0.06);
+    cursor: pointer; transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    background: #1a1d2e;
+  }
+  .option-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+  .option-card.selected { box-shadow: 0 0 0 3px var(--sel-color, #7c3aed); border-color: var(--sel-color, #7c3aed); }
+
+  .option-label { padding: 14px 16px 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .color-swatch { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; }
+  .option-title { font-weight: 700; font-size: 14px; color: #f1f5f9; }
+  .option-hex { font-size: 11px; color: #64748b; font-family: monospace; }
+
+  /* Mini sidebar preview */
+  .preview { padding: 14px; display: flex; gap: 12px; }
+  .mini-sidebar { width: 120px; background: #1a1d2e; border-radius: 8px; padding: 10px 8px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.06); }
+  .mini-logo { font-size: 13px; font-weight: 800; color: #fff; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 6px; }
+  .mini-logo span { }
+  .mini-section { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); padding: 4px 4px 2px; }
+  .mini-item { display: flex; align-items: center; gap: 5px; padding: 4px 4px; border-radius: 5px; font-size: 10px; color: rgba(255,255,255,0.6); }
+  .mini-item.active { color: #fff; font-weight: 600; }
+  .mini-dot { width: 16px; height: 16px; border-radius: 5px; font-size: 7px; font-weight: 800; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+
+  .mini-main { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .mini-header { background: #fff; border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; gap: 6px; }
+  .mini-title { font-size: 11px; font-weight: 700; color: #0f172a; flex: 1; }
+  .mini-badge { font-size: 8px; font-weight: 700; padding: 1px 6px; border-radius: 999px; color: #fff; }
+  .mini-btn { font-size: 8px; font-weight: 600; padding: 3px 8px; border-radius: 5px; border: none; cursor: pointer; color: #fff; }
+  .mini-card { background: #fff; border-radius: 7px; padding: 6px 8px; font-size: 9px; color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .mini-card-label { height: 3px; border-radius: 2px; width: 20px; margin-bottom: 4px; }
+  .mini-col { background: #e8edf5; border-radius: 8px; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .mini-col-title { font-size: 9px; font-weight: 700; color: #374151; padding-bottom: 3px; display: flex; justify-content: space-between; }
+  .mini-col-count { font-size: 8px; font-weight: 700; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; }
+  .mini-cols { display: flex; gap: 6px; flex: 1; }
+
+  .selected-bar {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #1e1e2e; color: #fff; padding: 10px 24px; border-radius: 999px;
+    font-size: 13px; font-weight: 600; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .selected-bar.visible { display: flex; align-items: center; gap: 8px; }
+  .sel-dot { width: 10px; height: 10px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<div class="page-title">Choose your accent color</div>
+<div class="page-sub">Applied to active states, badges, buttons, label highlights, and focus rings</div>
+
+<div class="grid">
+
+  <!-- A: Violet Purple -->
+  <div class="option-card" data-choice="a" data-color="#7c3aed" data-name="Violet Purple" onclick="pick(this)" style="--sel-color:#7c3aed">
+    <div class="option-label">
+      <div class="color-swatch" style="background:#7c3aed"></div>
+      <div>
+        <div class="option-title">Violet Purple</div>
+        <div class="option-hex">#7c3aed · Creative, premium</div>
+      </div>
+    </div>
+    <div class="preview">
+      <div class="mini-sidebar">
+        <div class="mini-logo">On<span style="color:#7c3aed">Point</span></div>
+        <div class="mini-section">Boards</div>
+        <div class="mini-item active" style="background:rgba(124,58,237,0.18)">
+          <div class="mini-dot" style="background:#7c3aed">S</div> Sprint
+        </div>
+        <div class="mini-item"><div class="mini-dot" style="background:#475569">D</div> Design</div>
+        <div class="mini-item"><div class="mini-dot" style="background:#475569">M</div> Mktg</div>
+      </div>
+      <div class="mini-main">
+        <div class="mini-header">
+          <div class="mini-title">Sprint Board</div>
+          <div class="mini-badge" style="background:#7c3aed">● LIVE</div>
+        </div>
+        <div class="mini-cols">
+          <div class="mini-col">
+            <div class="mini-col-title">To Do <div class="mini-col-count" style="background:#7c3aed">3</div></div>
+            <div class="mini-card"><div class="mini-card-label" style="background:#7c3aed"></div>Design hero</div>
+            <div class="mini-card">Fix auth bug</div>
+          </div>
+          <div class="mini-col">
+            <div class="mini-col-title">Done <div class="mini-col-count" style="background:#7c3aed">2</div></div>
+            <div class="mini-card"><div class="mini-card-label" style="background:#7c3aed"></div>Schema</div>
+          </div>
+        </div>
+        <button class="mini-btn" style="background:#7c3aed;width:fit-content">+ New Card</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- B: Electric Blue -->
+  <div class="option-card" data-choice="b" data-color="#2563eb" data-name="Electric Blue" onclick="pick(this)" style="--sel-color:#2563eb">
+    <div class="option-label">
+      <div class="color-swatch" style="background:#2563eb"></div>
+      <div>
+        <div class="option-title">Electric Blue</div>
+        <div class="option-hex">#2563eb · Trustworthy, Trello-like</div>
+      </div>
+    </div>
+    <div class="preview">
+      <div class="mini-sidebar">
+        <div class="mini-logo">On<span style="color:#2563eb">Point</span></div>
+        <div class="mini-section">Boards</div>
+        <div class="mini-item active" style="background:rgba(37,99,235,0.18)">
+          <div class="mini-dot" style="background:#2563eb">S</div> Sprint
+        </div>
+        <div class="mini-item"><div class="mini-dot" style="background:#475569">D</div> Design</div>
+        <div class="mini-item"><div class="mini-dot" style="background:#475569">M</div> Mktg</div>
+      </div>
+      <div class="mini-main">
+        <div class="mini-header">
+          <div class="mini-title">Sprint Board</div>
+          <div class="mini-badge" style="background:#2563eb">● LIVE</div>
+        </div>
+        <div class="mini-cols">
+          <div class="mini-col">
+            <div class="mini-col-title">To Do <div class="mini-col-count" style="background:#2563eb">3</div></div>
+            <div class="mini-card"><div class="mini-card-label" style="background:#2563eb"></div>Design hero</div>
+            <div class="mini-card">Fix auth bug</div>
+          </div>
+          <div class="mini-col">
+            <div class="mini-col-title">Done <div class="mini-col-count" style="background:#2563eb">2</div></div>
+            <div class="mini-card"><div class="mini-card-label" style="background:#2563eb"></div>Schema</div>
+          </div>
+        </div>
+        <button class="mini-btn" style="background:#2563eb;width:fit-content">+ New Card</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- C: Teal / Cyan -->
+  <div class="option-card" data-choice="c" data-color="#0891b2" data-name="Teal Cyan" onclick="pick(this)" style="--sel-color:#0891b2">
+    <div class="option-label">
+      <div class="color-swatch" style="background:#0891b2"></div>
+      <div>
+        <div class="option-title">Teal Cyan</div>
+        <div class="option-hex">#0891b2 · Fresh, modern, calm</div>
+      </div>
+    </div>
+    <div class="preview">
+      <div class="mini-sidebar">
+        <div class="mini-logo">On<span style="color:#0891b2">Point</span></div>
+        <div class="mini-section">Boards</div>
+        <div class="mini-item active" style="background:rgba(8,145,178,0.18)">
+          <div class="mini-dot" style="background:#0891b2">S</div> Sprint
+        </div>
+        <div class="mini-item"><div class="mini-dot" style="background:#475569">D</div> Design</div>
+        <div class="mini-item"><div class="mini-dot" style="background:#475569">M</div> Mktg</div>
+      </div>
+      <div class="mini-main">
+        <div class="mini-header">
+          <div class="mini-title">Sprint Board</div>
+          <div class="mini-badge" style="background:#0891b2">● LIVE</div>
+        </div>
+        <div class="mini-cols">
+          <div class="mini-col">
+            <div class="mini-col-title">To Do <div class="mini-col-count" style="background:#0891b2">3</div></div>
+            <div class="mini-card"><div class="mini-card-label" style="background:#0891b2"></div>Design hero</div>
+            <div class="mini-card">Fix auth bug</div>
+          </div>
+          <div class="mini-col">
+            <div class="mini-col-title">Done <div class="mini-col-count" style="background:#0891b2">2</div></div>
+            <div class="mini-card"><div class="mini-card-label" style="background:#0891b2"></div>Schema</div>
+          </div>
+        </div>
+        <button class="mini-btn" style="background:#0891b2;width:fit-content">+ New Card</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- D: Rose Pink -->
+  <div class="option-card" data-choice="d" data-color="#e11d48" data-name="Rose Pink" onclick="pick(this)" style="--sel-color:#e11d48">
+    <div class="option-label">
+      <div class="color-swatch" style="background:#e11d48"></div>
+      <div>
+        <div class="option-title">Rose Pink</div>
+        <div class="option-hex">#e11d48 · Bold, energetic, Slack-like</div>
+      </div>
+    </div>
+    <div class="preview">
+      <div class="mini-sidebar">
+        <div class="mini-logo">On<span style="color:#e11d48">Point</span></div>
+        <div class="mini-section">Boards</div>
+        <div class="mini-item active" style="background:rgba(225,29,72,0.15)">
+          <div class="mini-dot" style="background:#e11d48">S</div> Sprint
+        </div>
+        <div class="mini-item"><div class="mini-dot" style="background:#475569">D</div> Design</div>
+        <div class="mini-item"><div class="mini-dot" style="background:#475569">M</div> Mktg</div>
+      </div>
+      <div class="mini-main">
+        <div class="mini-header">
+          <div class="mini-title">Sprint Board</div>
+          <div class="mini-badge" style="background:#e11d48">● LIVE</div>
+        </div>
+        <div class="mini-cols">
+          <div class="mini-col">
+            <div class="mini-col-title">To Do <div class="mini-col-count" style="background:#e11d48">3</div></div>
+            <div class="mini-card"><div class="mini-card-label" style="background:#e11d48"></div>Design hero</div>
+            <div class="mini-card">Fix auth bug</div>
+          </div>
+          <div class="mini-col">
+            <div class="mini-col-title">Done <div class="mini-col-count" style="background:#e11d48">2</div></div>
+            <div class="mini-card"><div class="mini-card-label" style="background:#e11d48"></div>Schema</div>
+          </div>
+        </div>
+        <button class="mini-btn" style="background:#e11d48;width:fit-content">+ New Card</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="selected-bar" id="sel-bar">
+  <div class="sel-dot" id="sel-dot"></div>
+  <span id="sel-text">Selected</span>
+</div>
+
+<script>
+  let current = null;
+  function pick(el) {
+    if (current) current.classList.remove('selected');
+    el.classList.add('selected');
+    current = el;
+    const color = el.dataset.color;
+    const name = el.dataset.name;
+    document.getElementById('sel-dot').style.background = color;
+    document.getElementById('sel-text').textContent = '✓ ' + name + ' (' + color + ')';
+    document.getElementById('sel-bar').classList.add('visible');
+    if (window.__reportChoice) window.__reportChoice(el.dataset.choice, name + ' ' + color);
+  }
+</script>
+</body>
+</html>

@@ -543,8 +543,8 @@ export function BoardView({ boardId }: BoardViewProps) {
           onDragCancel={onDragCancel}
         >
           <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
-            <div className="flex flex-1 gap-4 overflow-x-auto p-4 pb-6">
-              {sortedColumns.map((column) => (
+            <div className="flex flex-1 gap-3 overflow-x-auto p-4 pb-6">
+              {sortedColumns.map((column, index) => (
                 <Column
                   key={column._id}
                   column={column}
@@ -552,6 +552,7 @@ export function BoardView({ boardId }: BoardViewProps) {
                   cards={cardsByColumn[column._id as string] ?? []}
                   onCardClick={(cardId) => setOpenCardId(cardId)}
                   canEdit={userCanEdit}
+                  columnIndex={index}
                 />
               ))}
               <AddColumnButton boardId={boardId} canEdit={userCanEdit} />
@@ -560,15 +561,15 @@ export function BoardView({ boardId }: BoardViewProps) {
 
           <DragOverlay>
             {activeCard && (
-              <div className="w-72 rotate-1 rounded-lg border border-primary bg-card px-3 py-2.5 shadow-2xl opacity-95">
-                <p className="text-sm font-medium text-foreground line-clamp-2">
+              <div className="w-[272px] rotate-1 rounded-lg border border-primary bg-card px-3 py-2.5 shadow-2xl shadow-black/50 opacity-95 ring-1 ring-primary/30">
+                <p className="text-[13px] font-medium text-foreground line-clamp-2">
                   {activeCard.title}
                 </p>
               </div>
             )}
             {!activeCard && activeColumn && (
-              <div className="w-72 rounded-xl border-2 border-primary bg-muted/80 p-2 shadow-2xl opacity-90">
-                <div className="px-2 py-1 text-sm font-semibold text-foreground">
+              <div className="w-[272px] rounded-xl border border-primary/50 bg-card p-2 shadow-2xl shadow-black/50 opacity-90">
+                <div className="px-2 py-1 text-xs font-semibold text-foreground">
                   {activeColumn.title}
                 </div>
               </div>
