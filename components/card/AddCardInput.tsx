@@ -45,7 +45,7 @@ export function AddCardInput({ columnId, boardId, canEdit = true }: AddCardInput
           background: 'none',
           border: '1px dashed rgba(255,255,255,0.07)',
           borderRadius: 6,
-          color: '#5A5F74',
+          color: '#5c6178ff',
           fontSize: 12,
           cursor: 'pointer',
           display: 'flex',
