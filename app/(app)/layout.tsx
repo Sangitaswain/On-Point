@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { LoadingSpinner } from '@/components/loading-spinner'
 import { AppSidebar } from '@/components/layout/AppSidebar'
 import { MobileSidebar } from '@/components/layout/MobileSidebar'
+import { NotificationToastHandler } from '@/components/notifications/NotificationToastHandler'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -68,6 +69,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+      <NotificationToastHandler />
     </div>
   )
 }

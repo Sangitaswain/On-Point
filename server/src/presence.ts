@@ -1,11 +1,11 @@
 import type { Socket } from 'socket.io'
 
-// boardId → Map<userId, { userName }>
-const presenceStore = new Map<string, Map<string, { userName: string }>>()
+// boardId → Map<userId, { userName, avatarUrl? }>
+const presenceStore = new Map<string, Map<string, { userName: string; avatarUrl?: string }>>()
 
-export function addToPresence(boardId: string, userId: string, userName: string) {
+export function addToPresence(boardId: string, userId: string, userName: string, avatarUrl?: string) {
   if (!presenceStore.has(boardId)) presenceStore.set(boardId, new Map())
-  presenceStore.get(boardId)!.set(userId, { userName })
+  presenceStore.get(boardId)!.set(userId, { userName, avatarUrl })
 }
 
 export function removeFromPresence(boardId: string, userId: string) {
@@ -19,6 +19,7 @@ export function getPresence(boardId: string) {
   return Array.from(board.entries()).map(([userId, data]) => ({
     userId,
     userName: data.userName,
+    avatarUrl: data.avatarUrl,
   }))
 }
 

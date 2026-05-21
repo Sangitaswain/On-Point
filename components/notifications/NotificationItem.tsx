@@ -38,7 +38,7 @@ export function NotificationItem({ notification, workspaceSlug }: Props) {
 
   async function handleClick() {
     await markAsRead({ notificationId: notification._id })
-    router.push(`/${workspaceSlug}/board/${notification.boardId}`)
+    router.push(`/${workspaceSlug}/board/${notification.boardId}?card=${notification.cardId}`)
   }
 
   return (

@@ -13,6 +13,7 @@ import tippy from 'tippy.js'
 import 'tippy.js/dist/tippy.css'
 import { MentionList, type MentionListRef } from './MentionList'
 import { Button } from '@/components/ui/button'
+import { useSocket } from '@/components/providers/SocketProvider'
 
 interface CommentInputProps {
   cardId: Id<'cards'>
@@ -22,6 +23,9 @@ interface CommentInputProps {
 export function CommentInput({ cardId, boardId }: CommentInputProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const createComment = useMutation(api.comments.createComment)
+  const socket = useSocket()
+  const typingRef = useRef(false)
+  const stopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const board = useQuery(api.boards.get, { boardId })
   const members = useQuery(
@@ -32,11 +36,34 @@ export function CommentInput({ cardId, boardId }: CommentInputProps) {
   const membersRef = useRef(members ?? [])
   useEffect(() => { membersRef.current = members ?? [] }, [members])
 
+  // ── Typing indicator ──────────────────────────────────────────────
+  function startTyping() {
+    if (!typingRef.current) {
+      typingRef.current = true
+      socket?.emit('TYPING_START', { boardId, cardId })
+    }
+    if (stopTimerRef.current) clearTimeout(stopTimerRef.current)
+    stopTimerRef.current = setTimeout(() => stopTyping(), 2000)
+  }
+
+  function stopTyping() {
+    if (typingRef.current) {
+      typingRef.current = false
+      socket?.emit('TYPING_STOP', { boardId, cardId })
+    }
+    if (stopTimerRef.current) {
+      clearTimeout(stopTimerRef.current)
+      stopTimerRef.current = null
+    }
+  }
+
+  // ── Editor setup ─────────────────────────────────────────────────
   // Ref to break the cycle between useEditor and handleSubmit
   const handleSubmitRef = useRef<() => void>(() => {})
 
   const editor = useEditor({
     immediatelyRender: false,
+    onUpdate: () => startTyping(),
     extensions: [
       StarterKit,
       Mention.configure({
@@ -108,6 +135,7 @@ export function CommentInput({ cardId, boardId }: CommentInputProps) {
     const text = editor.getText().trim()
     if (!text) return
 
+    stopTyping()
     setIsSubmitting(true)
     try {
       await createComment({ cardId, body: editor.getJSON() })
@@ -120,6 +148,11 @@ export function CommentInput({ cardId, boardId }: CommentInputProps) {
   }, [editor, cardId, createComment])
 
   useEffect(() => { handleSubmitRef.current = handleSubmit }, [handleSubmit])
+
+  // Clean up typing state on unmount
+  useEffect(() => {
+    return () => stopTyping()
+  }, [])
 
   const isEmpty = !editor?.getText().trim()
 

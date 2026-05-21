@@ -2,10 +2,10 @@ import { io, Socket } from 'socket.io-client'
 
 let socket: Socket | null = null
 
-export function getSocket(token: string, userName?: string): Socket {
+export function getSocket(token: string, userName?: string, avatarUrl?: string): Socket {
   if (!socket) {
     socket = io(process.env.NEXT_PUBLIC_SOCKET_URL!, {
-      auth: { token, userName },
+      auth: { token, userName, avatarUrl },
       autoConnect: false,
       reconnection: true,
       reconnectionAttempts: 5,

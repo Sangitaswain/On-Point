@@ -3,6 +3,7 @@
 import { Id } from '@/convex/_generated/dataModel'
 import { usePresence } from '@/hooks/usePresence'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const MAX_VISIBLE = 5
 
@@ -29,25 +30,32 @@ export function PresenceBar({ boardId }: PresenceBarProps) {
           <Tooltip key={user.userId}>
             <TooltipTrigger>
               <div style={{ marginLeft: i === 0 ? 0 : -6, position: 'relative', zIndex: visible.length - i, cursor: 'default' }}>
-                {/* Avatar circle */}
+                <Avatar
+                  className="size-[28px] border-2"
+                  style={{ borderColor: '#0D0F14' }}
+                >
+                  {user.avatarUrl && (
+                    <AvatarImage src={user.avatarUrl} alt={user.userName} />
+                  )}
+                  <AvatarFallback
+                    style={{
+                      background: 'oklch(62% 0.22 263 / 0.2)',
+                      color: 'oklch(62% 0.22 263)',
+                      fontSize: 10,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {initials(user.userName)}
+                  </AvatarFallback>
+                </Avatar>
+                {/* Green pulse dot */}
                 <div style={{
-                  width: 28, height: 28, borderRadius: '50%',
-                  background: 'oklch(62% 0.22 263 / 0.2)',
-                  border: '1.5px solid oklch(62% 0.22 263 / 0.4)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 10, fontWeight: 600, color: 'oklch(62% 0.22 263)',
-                  position: 'relative',
-                }}>
-                  {initials(user.userName)}
-                  {/* Green pulse dot */}
-                  <div style={{
-                    position: 'absolute', bottom: 0, right: 0,
-                    width: 7, height: 7, borderRadius: '50%',
-                    background: 'oklch(68% 0.18 155)',
-                    border: '1.5px solid #0D0F14',
-                    animation: 'pulseDot 2s ease infinite',
-                  }} />
-                </div>
+                  position: 'absolute', bottom: 0, right: 0,
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: 'oklch(68% 0.18 155)',
+                  border: '1.5px solid #0D0F14',
+                  animation: 'pulseDot 2s ease infinite',
+                }} />
               </div>
             </TooltipTrigger>
             <TooltipContent side="bottom"><p>{user.userName}</p></TooltipContent>

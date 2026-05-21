@@ -20,6 +20,9 @@ export async function authMiddleware(
       (socket.handshake.auth?.userName as string | undefined) ??
       jwtName ??
       payload.sub
+    socket.data.avatarUrl =
+      (socket.handshake.auth?.avatarUrl as string | undefined) ??
+      undefined
     next()
   } catch {
     next(new Error('INVALID_TOKEN'))

@@ -302,11 +302,10 @@ export const deleteCard = mutation({
     }
 
     // Delete all notifications referencing this card
-    // Notifications don't have a by_card index, so we filter by userId index
-    // We need to scan — notifications table has by_user and by_user_and_read indexes.
-    // Since there's no by_card index, we query all notifications and filter.
-    const allNotifications = await ctx.db.query('notifications').collect()
-    const cardNotifications = allNotifications.filter((n) => n.cardId === args.cardId)
+    const cardNotifications = await ctx.db
+      .query('notifications')
+      .withIndex('by_card', (q) => q.eq('cardId', args.cardId))
+      .collect()
     for (const notification of cardNotifications) {
       await ctx.db.delete(notification._id)
     }

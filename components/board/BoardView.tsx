@@ -36,9 +36,10 @@ import { toast } from 'sonner'
 
 interface BoardViewProps {
   boardId: Id<'boards'>
+  initialCardId?: Id<'cards'> | null
 }
 
-export function BoardView({ boardId }: BoardViewProps) {
+export function BoardView({ boardId, initialCardId }: BoardViewProps) {
   const columns = useQuery(api.columns.listByBoard, { boardId })
   const cards = useQuery(api.cards.listByBoard, { boardId })
   const myPermission = useBoardPermission(boardId)
@@ -49,8 +50,11 @@ export function BoardView({ boardId }: BoardViewProps) {
 
   const socket = useSocket()
 
-  // Card modal state
+  // Card modal state — auto-open from notification if initialCardId is provided
   const [openCardId, setOpenCardId] = useState<Id<'cards'> | null>(null)
+  useEffect(() => {
+    if (initialCardId) setOpenCardId(initialCardId)
+  }, [initialCardId])
   // Mobile: which column tab is active
   const [mobileColumnId, setMobileColumnId] = useState<string | null>(null)
 

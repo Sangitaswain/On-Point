@@ -22,7 +22,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       if (!token || !mounted) return
       const joined = [user?.firstName, user?.lastName].filter(Boolean).join(' ')
       const userName = user?.fullName ?? (joined || user?.username) ?? undefined
-      const s = getSocket(token, userName ?? undefined)
+      const avatarUrl = user?.imageUrl ?? undefined
+      const s = getSocket(token, userName ?? undefined, avatarUrl)
       s.connect()
       setSocket(s)
       didConnect.current = true

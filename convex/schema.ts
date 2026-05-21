@@ -141,7 +141,9 @@ export default defineSchema({
     isRead: v.boolean(),
   })
   .index('by_user', ['userId'])
-  .index('by_user_and_read', ['userId', 'isRead']),
+  .index('by_user_and_read', ['userId', 'isRead'])
+  .index('by_card', ['cardId'])
+  .index('by_board', ['boardId']),
 
   // ─── Chat Messages ─────────────────────────────────────────────────────
   chatMessages: defineTable({

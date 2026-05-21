@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import { useSocket } from '@/components/providers/SocketProvider'
 import { Id } from '@/convex/_generated/dataModel'
 
-type PresenceUser = { userId: string; userName: string }
+type PresenceUser = { userId: string; userName: string; avatarUrl?: string }
 
 type PresenceInit = PresenceUser[]
 type PresenceUpdate =
-  | { type: 'JOIN'; userId: string; userName: string }
+  | { type: 'JOIN'; userId: string; userName: string; avatarUrl?: string }
   | { type: 'LEAVE'; userId: string }
 
 export function usePresence(boardId: Id<'boards'>) {
@@ -22,7 +22,7 @@ export function usePresence(boardId: Id<'boards'>) {
       if (payload.type === 'JOIN') {
         setUsers((prev) => {
           if (prev.some((u) => u.userId === payload.userId)) return prev
-          return [...prev, { userId: payload.userId, userName: payload.userName }]
+          return [...prev, { userId: payload.userId, userName: payload.userName, avatarUrl: payload.avatarUrl }]
         })
       } else {
         setUsers((prev) => prev.filter((u) => u.userId !== payload.userId))

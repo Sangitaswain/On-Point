@@ -251,12 +251,10 @@ export const deleteBoard = mutation({
     }
 
     // 5. Notifications referencing this board
-    // notifications does not have a by_board index, so we scan by known indexes
-    // We collect all and filter in-memory since there is no by_board index
-    const allNotifications = await ctx.db.query('notifications').collect()
-    const boardNotifications = allNotifications.filter(
-      (n) => n.boardId === args.boardId
-    )
+    const boardNotifications = await ctx.db
+      .query('notifications')
+      .withIndex('by_board', (q) => q.eq('boardId', args.boardId))
+      .collect()
     for (const notif of boardNotifications) {
       await ctx.db.delete(notif._id)
     }

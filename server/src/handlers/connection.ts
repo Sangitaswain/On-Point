@@ -9,12 +9,13 @@ export function handleConnection(socket: Socket) {
     socket.join(`board:${boardId}`)
     socket.data.currentBoardId = boardId
 
-    addToPresence(boardId, socket.data.userId, socket.data.userName)
+    addToPresence(boardId, socket.data.userId, socket.data.userName, socket.data.avatarUrl)
     socket.emit('PRESENCE_INIT', getPresence(boardId))
     socket.to(`board:${boardId}`).emit('PRESENCE_UPDATE', {
       type: 'JOIN',
       userId: socket.data.userId,
       userName: socket.data.userName,
+      avatarUrl: socket.data.avatarUrl,
     })
   })
 
@@ -85,16 +86,18 @@ export function handleConnection(socket: Socket) {
 
   // ─── Chat Events ─────────────────────────────────────────────────
 
-  socket.on('TYPING_START', ({ boardId }: { boardId: string }) => {
+  socket.on('TYPING_START', ({ boardId, cardId }: { boardId: string; cardId?: string }) => {
     socket.to(`board:${boardId}`).emit('TYPING_START', {
       userId: socket.data.userId,
       userName: socket.data.userName,
+      cardId,
     })
   })
 
-  socket.on('TYPING_STOP', ({ boardId }: { boardId: string }) => {
+  socket.on('TYPING_STOP', ({ boardId, cardId }: { boardId: string; cardId?: string }) => {
     socket.to(`board:${boardId}`).emit('TYPING_STOP', {
       userId: socket.data.userId,
+      cardId,
     })
   })
 

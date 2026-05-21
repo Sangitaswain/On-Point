@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
@@ -14,8 +14,19 @@ import { ActivityLogPanel } from '@/components/board/ActivityLogPanel'
 
 export default function BoardPage() {
   const params = useParams<{ workspaceSlug: string; boardId: string }>()
+  const searchParams = useSearchParams()
   const workspaceSlug = params.workspaceSlug
   const boardId = params.boardId as Id<'boards'>
+
+  // Card modal state — auto-open from notification URL param
+  const [openCardId, setOpenCardId] = useState<Id<'cards'> | null>(null)
+
+  useEffect(() => {
+    const cardParam = searchParams.get('card')
+    if (cardParam) {
+      setOpenCardId(cardParam as Id<'cards'>)
+    }
+  }, [searchParams])
 
   // Prefilter: only query if boardId looks valid (avoids FORBIDDEN on stale URLs)
   const board = useQuery(
@@ -64,7 +75,7 @@ export default function BoardPage() {
       />
       <div className="flex flex-1 overflow-hidden">
         <div className="flex flex-1 flex-col overflow-hidden">
-          <BoardView boardId={board._id} />
+          <BoardView boardId={board._id} initialCardId={openCardId} />
         </div>
         <ActivityLogPanel
           boardId={board._id}
